@@ -59,10 +59,9 @@ class ClientFileService:
     def save_file_dialog(self, file_name):
         osv = platform.system()
         if osv == "Darwin":
-            script = f'POSIX path of (choose file name with prompt "Choose where to save {file_name} to: default name {file_name}")'
+            script = f'POSIX path of (choose file name with prompt "Choose where to save `{file_name}` to:" default name "{file_name}")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
-            logging.debug(f"File path picked: {path}")
-            logging.debug(f"Is path Empty? {path == ""}")
+            logging.debug(f"File path picked: {path if path != "" else 'Empty'}")
             return path
         elif osv == "Windows":
             ps_command = f"""
