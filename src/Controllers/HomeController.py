@@ -176,7 +176,7 @@ class HomeController:
         self.mini_navigator()
 
     def upload_file_button_on_click(self):
-        file = self.client_file_service.file_picker()
+        file = self.client_file_service.file_picker_dialog()
         if file is None or file == "": return
         else: file = str(file)
 
@@ -239,10 +239,10 @@ class HomeController:
         status, file_bytes = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
         if status == "SUCCESS":
             logging.debug("Download successful \n Writing to file")
-            path_to_save_to = self.client_file_service.dir_picker()
+            path_to_save_to = self.client_file_service.save_file_dialog(file_name)
             logging.debug(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
             if path_to_save_to is None or path_to_save_to == "": return
-            self.client_file_service.save_file_to_disk(path_to_save_to, file_name, file_bytes)
+            self.client_file_service.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
             logging.debug("File saved successfully")
         else:
             logging.debug("Download failed")

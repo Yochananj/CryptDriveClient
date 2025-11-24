@@ -3,9 +3,6 @@ import os
 import platform
 import subprocess
 
-if platform.system() == "Windows":
-    import win32ui
-    from win32com.shell import shell, shellcon
 
 
 class ClientFileService:
@@ -32,7 +29,7 @@ class ClientFileService:
         return file_contents
 
 
-    def file_picker(self):
+    def file_picker_dialog(self):
         osv = platform.system()
         if osv == "Darwin":
             script = 'POSIX path of (choose file with prompt "Select a file")'
@@ -41,29 +38,54 @@ class ClientFileService:
             logging.debug(f"Is path Empty? {path == ""}")
             return path
         elif osv == "Windows":
-            dlg = win32ui.CreateFileDialog(1)  # 1 = open, 0 = save
-            dlg.DoModal()
-            path = dlg.GetPathName()
-            logging.debug(f"File path picked: {path}")
+            ps_command = f"""
+                [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
+                $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+                $OpenFileDialog.filter = "All Files (*.*)|*.*"
+                $OpenFileDialog.ShowDialog() | Out-Null
+                $OpenFileDialog.filename"""
 
+            path = subprocess.run(
+                ["powershell", "-Command", ps_command],
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            logging.debug(f"File path picked: {path if not path == "" else "Empty"}")
             return path
         else:
             raise Exception("Unsupported OS")
 
-    def dir_picker(self):
+    def save_file_dialog(self, file_name):
         osv = platform.system()
         if osv == "Darwin":
-            script = 'POSIX path of (choose folder with prompt "Select a folder")'
+            script = f'POSIX path of (choose file name with prompt "Choose where to save {file_name} to: default name {file_name}")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
             logging.debug(f"File path picked: {path}")
             logging.debug(f"Is path Empty? {path == ""}")
             return path
         elif osv == "Windows":
-            raise Exception("Not Implemented")
+            ps_command = f"""
+                [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
+                $SaveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+                $SaveFileDialog.filter = "All Files (*.*)|*.*"
+                $SaveFileDialog.AddExtension = $true
+                $SaveFileDialog.FileName = "{file_name}" # Set the default file name here
+                $SaveFileDialog.ShowDialog() | Out-Null
+                $SaveFileDialog.filename"""
+
+            path = subprocess.run(
+                ["powershell", "-Command", ps_command],
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            logging.debug(f"File path picked: {path if not path == "" else 'Empty'}")
+            return path
         else:
             raise Exception("Unsupported OS")
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     cfs = ClientFileService()
-    cfs.dir_picker()
+    cfs.save_file_dialog("jorkin depeanits")
