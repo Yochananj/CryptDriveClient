@@ -1,6 +1,7 @@
 import flet as ft
 
 # Constants:
+operating_system = ""
 
 # Project Constants
 app_name = "CryptDrive"

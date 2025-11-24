@@ -1,5 +1,7 @@
 import logging
 import os
+import platform
+
 import flet as ft
 
 from Services.ClientFileService import ClientFileService
@@ -37,9 +39,10 @@ class GUI:
         self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         self.page.theme_mode = "light"
-        # self.page.window.title_bar_hidden = True
+        if platform.system() == "Darwin": self.page.window.title_bar_hidden = True
         self.navigator(ViewsAndRoutesList.LOG_IN)
         self.comms_manager.navigator = self.navigator
+
 
 
     def navigator(self, to_page: ViewsAndRoutesList, username: str = None, password: str = None):

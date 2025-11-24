@@ -3,9 +3,6 @@ import logging
 import os.path
 
 import flet as ft
-import platformdirs
-import tkinter as tk
-from tkinter import filedialog
 
 
 from Dependencies.Constants import crypt_drive_blue, crypt_drive_theme, crypt_drive_fonts
@@ -43,8 +40,6 @@ class HomeController:
         self.mini_navigator()
         self.attach_handlers()
 
-        root = tk.Tk()
-        root.withdraw()
 
     def attach_handlers(self):
         self.view.nav_rail.on_change = self.mini_navigator
@@ -181,8 +176,8 @@ class HomeController:
         self.mini_navigator()
 
     def upload_file_button_on_click(self):
-        file = filedialog.askopenfilename(title="Select File to Upload", initialdir=str(platformdirs.user_downloads_dir()))
-        if file is None: return
+        file = self.client_file_service.file_picker()
+        if file is None or file == "": return
         else: file = str(file)
 
         logging.debug(f"Uploading file: {file}")
@@ -244,8 +239,9 @@ class HomeController:
         status, file_bytes = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
         if status == "SUCCESS":
             logging.debug("Download successful \n Writing to file")
-            path_to_save_to = filedialog.askdirectory(title=f"Saving {file_name}", initialdir=str(os.path.dirname(platformdirs.user_downloads_dir())))
-            if path_to_save_to is None: return
+            path_to_save_to = self.client_file_service.dir_picker()
+            logging.debug(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
+            if path_to_save_to is None or path_to_save_to == "": return
             self.client_file_service.save_file_to_disk(path_to_save_to, file_name, file_bytes)
             logging.debug("File saved successfully")
         else:
@@ -255,14 +251,12 @@ class HomeController:
     def get_file_list(self):
         logging.debug("Getting file list")
         status, dirs_and_files = self.comms_manager.send_message(verb=Verbs.GET_ITEMS_LIST, data=[self.current_dir])
-        dirs, files = [], []
 
         logging.debug(f"status: {status}")
         logging.debug(f"dirs_and_files: <{dirs_and_files}>, type: {type(dirs_and_files)}")
         logging.debug(f"dirs_and_files[0]: {dirs_and_files[0]}")
 
-        if dirs_and_files[0]:
-            dirs, files = json.loads(dirs_and_files[0]), json.loads(dirs_and_files[1])
+        dirs, files = json.loads(json.loads(dirs_and_files)["dirs_dumps"]), json.loads(json.loads(dirs_and_files)["files_dumps"])
 
         return dirs, files
 

@@ -37,10 +37,7 @@ class ClientClass:
 
         if b == "READY_FOR_DATA":
             logging.debug("Sending data")
-            str_to_send = data[-1]
-            if not isinstance(str_to_send, bytes):
-                str_to_send = str_to_send.encode()
-            str_to_send += end_flag
+            str_to_send = data[-1] + end_flag
             self.sock.sendall(str_to_send)
             logging.debug("Data sent \n waiting for response.")
             a,b = self.receive_response()
@@ -71,10 +68,6 @@ class ClientClass:
         if to_return_data == "SENDING_DATA":
             logging.debug("Receiving Data")
             to_return_data = self.receive_data(is_receiving_byte_data)
-            logging.debug(f"Received Data: {to_return_data}, now splitting.")
-            if is_receiving_byte_data and seperator.encode() in to_return_data: to_return_data = to_return_data.split(seperator.encode())
-            elif seperator in to_return_data: to_return_data = to_return_data.split(seperator)
-            if len(to_return_data) == 1: to_return_data = to_return_data[0]
 
         if to_return_data == "INVALID_TOKEN" and self.navigator:
             self.navigator(ViewsAndRoutesList.LOG_IN)
@@ -123,14 +116,13 @@ class ClientClass:
 
             if data_chunk.endswith(end_flag):
                 finished = True
-                if is_byte_data: received_data += data_chunk[:-(len(seperator)+len(end_flag))]
-                else: received_data += data_chunk[:-(len(seperator)+len(end_flag))].decode()
+                if is_byte_data: received_data += data_chunk[:-len(end_flag)]
+                else: received_data += data_chunk[:-len(end_flag)].decode()
             else:
                 if is_byte_data: received_data += data_chunk
                 else: received_data += data_chunk.decode()
 
         logging.info(f"finished receiving data: {received_data}, {type(received_data)}")
-
 
         return received_data
 
@@ -138,7 +130,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     client = ClientClass()
 
-    client.send_message(Verbs.LOG_IN, ["qwe", PasswordHashingService.hash("qweqweqwe")])
+    client.send_message(Verbs.LOG_IN, ["qwe", PasswordHashingService.hash("qwe qwe qwe")])
 
     with open("/Users/yocha/Python Stuff/www/R8.jpg", "rb") as file:
         file_contents = file.read(-1)
