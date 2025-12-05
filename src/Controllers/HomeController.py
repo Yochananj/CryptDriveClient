@@ -274,11 +274,14 @@ class HomeController:
         if len(new_dir_name) == 0:
             self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
             return
-        if not new_dir_name.isalnum():
+
+        is_name_invalid = False
+        for sect in new_dir_name.split(" "):
+            if not sect.isalnum() :
+                is_name_invalid = True
+
+        if is_name_invalid:
             self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
-            return
-        if new_dir_name in [directory.name for directory in self.container.directories]:
-            self.page.open(error_alert("Directory Name already exists. Please try again with a different name."))
             return
 
         data = [self.current_dir, old_dir_name, new_dir_name]
@@ -314,7 +317,12 @@ class HomeController:
             self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
             return
 
-        if not dir_name.isalnum():
+        is_name_invalid = False
+        for sect in dir_name.split(" "):
+            if not sect.isalnum():
+                is_name_invalid = True
+
+        if is_name_invalid:
             self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
             return
 
