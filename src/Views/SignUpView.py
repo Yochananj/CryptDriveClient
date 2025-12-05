@@ -11,7 +11,7 @@ class SignUpView:
             controls=[
                 ft.Column(width=30, controls=[ft.Text("")]),
                 ft.Image(
-                    src=os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets/icon.png"),
+                    src=os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.png"),
                     width=200,
                     height=200,
                     fit=ft.ImageFit.FIT_WIDTH
