@@ -30,7 +30,7 @@ class GUI:
         self.page.window.icon = "window_icon.ico"
         self.page.window.width = 1000
         self.page.window.min_width = 900
-        self.page.window.height = 750
+        self.page.window.height = 600
         self.page.window.min_height = 600
         self.page.window.center()
         # self.page.window.resizable = False

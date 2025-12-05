@@ -22,7 +22,7 @@ class HomeController:
         self.view: HomeView = view
         self.navigator = navigator
         self.comms_manager = comms_manager
-        self.page = page
+        self.page: ft.Page = page
         self.page.theme = crypt_drive_theme
         self.container = None
         self.current_dir = "/"
@@ -84,7 +84,7 @@ class HomeController:
 
                 self.container.animator.content = self.container.loading
                 self.container.animator.update()
-                time.sleep(0.5)
+                time.sleep(0.1)
 
                 self.container.current_directory = FolderTile(path=self.current_dir, item_count=None, is_current_directory=True)
 
@@ -179,6 +179,7 @@ class HomeController:
         self.mini_navigator()
 
     def upload_file_button_on_click(self):
+        self.page.window.to_front()
         file = self.client_file_service.file_picker_dialog()
         if file is None or file == "": return
         else: file = str(file)
@@ -383,6 +384,7 @@ class HomeController:
         status, file_bytes = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
         if status == "SUCCESS":
             logging.debug("Download successful \n Writing to file")
+            self.page.window.to_front()
             path_to_save_to = self.client_file_service.save_file_dialog(file_name)
             logging.debug(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
             if path_to_save_to is None or path_to_save_to == "": return

@@ -98,6 +98,7 @@ class ClientClass:
         return file_bytes
 
     def receive_data(self, is_byte_data=False, file_size=None):
+        time.sleep(0.5)
         finished = False
         index = 0
         if is_byte_data:
