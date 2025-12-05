@@ -45,7 +45,7 @@ class ClientClass:
         return a,b
 
     def receive_response(self, is_receiving_byte_data=False):
-        time.sleep(0.5)
+        logging.debug("Receiving Response")
         status = self.sock.recv(buffer_size).decode()
 
         logging.debug(f"Received and decoded: {status}")

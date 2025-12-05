@@ -66,72 +66,9 @@ class FileContainer:
             vertical_alignment=ft.CrossAxisAlignment.START,
             expand_loose=True
         )
-        self.create_dir_dialog_cancel = ft.TextButton(
-            text="Cancel",
-        )
-        self.create_dir_dialog_confirm = ft.TextButton(
-            text="Confirm",
-        )
-        self.alert_dialog_text_field = ft.TextField(
-            value="",
-            width=300,
-            label="Directory Name",
-            autofocus=True,
-            prefix_icon=ft.Icon(ft.Icons.FOLDER_ROUNDED, color=crypt_drive_purple),
-        )
-        self.alert_dialog_subtitle = ft.Text("Enter the name of the new directory:", font_family="Aeonik")
-        self.alert_dialog_content = ft.Container(
-            content=
-                ft.Column(
-                    controls=[
-                        self.alert_dialog_subtitle,
-                        self.alert_dialog_text_field
-                    ],
-                ),
-            alignment=ft.Alignment(0,0),
-            width=400,
-            height=90,
-            expand=False
-        )
-        self.create_dir_dialog = ft.AlertDialog(
-            title=ft.Row([ft.Icon(ft.Icons.CREATE_NEW_FOLDER, color=crypt_drive_purple), ft.Text("Create New Directory", font_family="Aeonik Bold")]),
-            modal=False,
-            content=self.alert_dialog_content,
-            actions=[self.create_dir_dialog_cancel, self.create_dir_dialog_confirm],
-            bgcolor=crypt_drive_blue_semilight,
-        )
-        self.rename_file_dialog_cancel = ft.TextButton(
-            text="Cancel",
-        )
-        self.rename_file_dialog_confirm = ft.TextButton(
-            text="Confirm",
-        )
-        self.rename_file_dialog = ft.AlertDialog(
-            title=ft.Row([ft.Icon(ft.Icons.CREATE_NEW_FOLDER, color=crypt_drive_purple), ft.Text("Rename File:", font_family="Aeonik Bold")]),
-            modal=False,
-            content=self.alert_dialog_content,
-            actions=[self.rename_file_dialog_cancel, self.rename_file_dialog_confirm],
-            bgcolor=crypt_drive_blue_semilight,
 
-        )
-        self.delete_file_dialog_cancel = ft.TextButton(text="Cancel")
-        self.delete_file_dialog_confirm = ft.TextButton(text="Confirm")
-        self.delete_file_dialog_title = ft.Text("Delete File", font_family="Aeonik Bold")
-        self.delete_file_dialog = ft.AlertDialog(
-            title=ft.Row([ft.Icon(ft.Icons.DELETE, color=crypt_drive_purple), self.delete_file_dialog_title]),
-            modal=False,
-            actions=[self.delete_file_dialog_cancel, self.delete_file_dialog_confirm],
-            bgcolor=crypt_drive_blue_semilight,
-        )
-        self.confirm_file_extension_change_dialog_cancel = ft.TextButton(text="Cancel")
-        self.confirm_file_extension_change_dialog_confirm = ft.TextButton(text="Confirm")
-        self.confirm_file_extension_change_dialog = ft.AlertDialog(
-            title=ft.Text("Confirm File Extension Change", font_family="Aeonik Bold"),
-            modal=True,
-            content=ft.Text("bla"),
-            actions=[self.confirm_file_extension_change_dialog_cancel, self.confirm_file_extension_change_dialog_confirm],
-            bgcolor=crypt_drive_blue_semilight,
-        )
+
+
 
     def build(self):
         return self.column

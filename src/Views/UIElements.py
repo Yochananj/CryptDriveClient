@@ -33,23 +33,103 @@ def success_alert(success_message: str):
         margin=ft.margin.all(10),
     )
 
+
+class TextFieldAlertDialog:
+    def __init__(
+            self,
+            page:ft.Page,
+            title: str,
+            title_icon: ft.Icons,
+            subtitle: str,
+            text_field_label: str,
+            modal=False):
+
+
+        self.text_field = ft.TextField(
+            value="",
+            width=300,
+            label=text_field_label,
+            autofocus=True,
+        )
+        self.content = ft.Container(
+            content=
+            ft.Column(
+                controls=[
+                    ft.Text(subtitle, font_family="Aeonik"),
+                    self.text_field
+                ],
+            ),
+            alignment=ft.Alignment(0,0),
+            width=400,
+            height=90,
+            expand=False
+        )
+        self.alert = ft.AlertDialog(
+            title=ft.Row([
+                    ft.Icon(title_icon, color=crypt_drive_purple),
+                    ft.Text(title, font_family="Aeonik Bold")
+            ]),
+            modal=modal,
+            content=self.content,
+            bgcolor=crypt_drive_blue_semilight,
+        )
+        self.cancel = ft.TextButton(text="Cancel", on_click=lambda e: page.close(self.alert))
+        self.confirm = ft.TextButton(text="Confirm")
+        self.alert.actions=[self.cancel, self.confirm]
+
+
+    def set_on_confirm_method(self, method):
+        self.confirm.on_click = method
+
+    def get_text_field_value(self):
+        return self.text_field.value
+
+
+class CancelConfirmAlertDialog:
+    def __init__(
+            self,
+            page: ft.Page,
+            title: str,
+            title_icon: ft.Icons,
+            subtitle: str,
+            modal=False):
+
+        self.alert = ft.AlertDialog(
+            title=ft.Row([
+                ft.Icon(title_icon, color=crypt_drive_purple),
+                ft.Text(title, font_family="Aeonik Bold")
+            ]),
+            modal=modal,
+            content=ft.Container(ft.Text(subtitle, font_family="Aeonik"), width=500, expand=False),
+            bgcolor=crypt_drive_blue_semilight,
+
+        )
+        self.cancel = ft.TextButton(text="Cancel", on_click=lambda e: page.close(self.alert))
+        self.confirm = ft.TextButton(text="Confirm")
+        self.alert.actions = [self.cancel, self.confirm]
+
+
+    def set_on_confirm_method(self, method):
+        self.confirm.on_click = method
+
 class FileTile:
     def __init__(self, file_name, file_size):
         self.name = file_name
         self.size = file_size
         self.download = ft.IconButton(
             ft.Icons.FILE_DOWNLOAD_OUTLINED,
-            on_click=lambda _: None,
             tooltip="Download File"
         )
         self.edit = ft.IconButton(
             ft.Icons.EDIT,
-            on_click=lambda _: None,
             tooltip="Rename File"
+        )
+        self.move = ft.IconButton(
+            ft.Icons.DRIVE_FILE_MOVE_ROUNDED,
+            tooltip="Move File"
         )
         self.delete = ft.IconButton(
             ft.Icons.DELETE,
-            on_click=lambda _: None,
             tooltip="Delete File"
         )
         self.tile = ft.Container(
@@ -67,6 +147,7 @@ class FileTile:
                         ], expand = True
                     ),
                     self.download,
+                    self.move,
                     self.edit,
                     self.delete,
                 ]
@@ -84,13 +165,14 @@ class FolderTile:
             self.path = path[:-len(self.name)]
 
         self.items = item_count
-
         self.parent_icon = ft.Icons.DRIVE_FOLDER_UPLOAD_ROUNDED
-
         self.tooltip = "Click to return to Parent Folder"
-
         self.is_root = False
 
+        self.move = ft.IconButton(
+            ft.Icons.DRIVE_FILE_MOVE_ROUNDED,
+            tooltip="Move File"
+        )
         self.rename = ft.IconButton(
             icon=ft.Icons.EDIT,
             tooltip="Rename Folder"
@@ -104,8 +186,6 @@ class FolderTile:
             self.is_root = True
             self.parent_icon = ft.Icons.HOME_ROUNDED
             self.tooltip = "Already at root folder"
-
-        self.has_shadow = False
 
         self.tile = ft.Container(
             content=ft.Row(
@@ -123,6 +203,7 @@ class FolderTile:
                         ],
                         expand = True,
                     ),
+                    self.move,
                     self.rename,
                     self.delete,
                 ],

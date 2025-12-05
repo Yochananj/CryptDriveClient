@@ -1,6 +1,8 @@
 import json
 import logging
 import os.path
+import time
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_blue, crypt_drive_theme, crypt_drive_fonts
@@ -10,7 +12,8 @@ from Views.AccountContainer import AccountContainer
 from Views.FileContainer import FileContainer
 from Views.HomeView import HomeView
 from Views.SettingsContainer import SettingsContainer
-from Views.UIElements import error_alert, FolderTile, FileTile, success_alert
+from Views.UIElements import error_alert, FolderTile, FileTile, success_alert, TextFieldAlertDialog, \
+    CancelConfirmAlertDialog
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
@@ -81,6 +84,7 @@ class HomeController:
 
                 self.container.animator.content = self.container.loading
                 self.container.animator.update()
+                time.sleep(0.5)
 
                 self.container.current_directory = FolderTile(path=self.current_dir, item_count=None, is_current_directory=True)
 
@@ -150,23 +154,19 @@ class HomeController:
 
                 # `Create Directory` button and dialog
                 self.container.create_dir_button.on_click = lambda e: self.create_dir_button_on_click()
-                self.container.create_dir_dialog_confirm.on_click = lambda e, dir_name_text_field=self.container.alert_dialog_text_field: self.create_dir_confirm_on_click(dir_name_text_field.value)
-                self.container.create_dir_dialog_cancel.on_click = lambda e: self.page.close(self.container.create_dir_dialog)
 
                 # FolderTiles
                 for directory in self.container.directories:
                     directory.tile.on_click = lambda e, dp = directory.path, dn = directory.name: self.change_dir(dp + dn)
                     directory.delete.on_click = lambda e, d = directory: self.delete_dir_on_click(d)
+                    directory.rename.on_click = lambda e, d = directory: self.rename_dir_on_click(d.name)
 
                 # FileTile Download Buttons
                 for file in self.container.files:
                     file.download.on_click = lambda e, fn=file.name: self.download_file_on_click(fn)
                     file.delete.on_click = lambda e, fn=file.name: self.delete_file_on_click(fn)
-                    file.edit.on_click = lambda e, fn=file.name: self.rename_file_button_on_click(fn)
+                    file.edit.on_click = lambda e, fn=file.name: self.rename_file_on_click(fn)
 
-                # `Rename File` dialog
-                self.container.rename_file_dialog_cancel.on_click = lambda e: self.page.close(self.container.rename_file_dialog)
-                self.container.confirm_file_extension_change_dialog_cancel.on_click = lambda e: self.page.open(self.container.rename_file_dialog)
 
             case 1:  # Account container
                 self.account_container.log_out_button.on_click = lambda e: self.log_out()
@@ -193,45 +193,56 @@ class HomeController:
             self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} uploaded successfully"))
         else:
             logging.debug("File upload failed")
-            self.page.open(error_alert("File Upload Failed. Please Try Again"))
+            self.page.open(error_alert(f"File Upload Failed. Please Try Again. (Error Code: {response})"))
 
-    def rename_file_button_on_click(self, file_name):
-        self.container.alert_dialog_subtitle.value = f"Enter the new file name for the file '{file_name}':"
-        self.container.alert_dialog_text_field.label = "File Name:"
-        self.container.rename_file_dialog_confirm.on_click = lambda e, ofn=file_name: self.rename_file(ofn)
-        self.page.open(self.container.rename_file_dialog)
+    def rename_file_on_click(self, old_file_name):
+        dialog = TextFieldAlertDialog(
+            page=self.page,
+            title="Rename File:",
+            title_icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_ROUNDED,
+            subtitle=f"Enter the new file name for the file '{old_file_name}':",
+            text_field_label="New File Name:",
+            modal=False
+        )
+        dialog.set_on_confirm_method(lambda e: self.rename_file(old_file_name, dialog=dialog))
+        self.page.open(dialog.alert)
 
-    def rename_file(self, old_file_name, override_file_extension: bool = False):
-        new_file_name = self.container.alert_dialog_text_field.value
+    def rename_file(self, old_file_name, dialog, file_extension_change_dialog=None, override_file_extension: bool = False):
+        new_file_name = dialog.get_text_field_value()
         logging.debug(f"Current dir: {self.current_dir}")
         logging.debug(f"Old file name: {old_file_name}")
         logging.debug(f"New file name: {new_file_name}")
+        self.page.close(dialog.alert)
 
         if len(new_file_name) == 0:
-            self.page.close(self.container.rename_file_dialog)
             self.page.open(error_alert("File Name cannot be empty. Please try again with a different name."))
             return
 
         if "/" in new_file_name:
-            self.page.close(self.container.rename_file_dialog)
             self.page.open(error_alert("File Name cannot contain slashes. Please try again with a different name."))
             return
 
         if "|" in new_file_name:
-            self.page.close(self.container.rename_file_dialog)
             self.page.open(error_alert("File Name cannot contain pipes. Please try again with a different name."))
             return
 
         if "." in old_file_name and (new_file_name.split(".")[-1] != old_file_name.split(".")[-1] or not new_file_name) and not override_file_extension:
-            self.container.confirm_file_extension_change_dialog.content = ft.Text(f"Are you sure you want to change the extension of {old_file_name} when renaming to {new_file_name}?")
-            self.page.open(self.container.confirm_file_extension_change_dialog)
-            self.container.confirm_file_extension_change_dialog_confirm.on_click = lambda e, fn=self.container.alert_dialog_text_field.value: self.rename_file(old_file_name, override_file_extension=True)
+            confirmation_dialog = CancelConfirmAlertDialog(
+                page=self.page,
+                title="Confirm File Extension Change",
+                title_icon=ft.Icons.WARNING_ROUNDED,
+                subtitle=f"The new file name you have entered (`{new_file_name}`) contains a different file extension than the current file name (`{old_file_name}`).\nAre you sure you want to proceed?"
+            )
+            confirmation_dialog.set_on_confirm_method(lambda e: self.rename_file(old_file_name, dialog, file_extension_change_dialog=confirmation_dialog, override_file_extension=True))
+            self.page.open(confirmation_dialog.alert)
             return
 
-        if override_file_extension: self.page.close(self.container.confirm_file_extension_change_dialog)
-        self.page.close(self.container.rename_file_dialog)
+        if override_file_extension:
+            self.page.close(file_extension_change_dialog)
+
         if old_file_name == new_file_name:
-            self.page.open(success_alert(f"File {old_file_name} already has the same name. No changes made."))
+            return
+
         else:
             data = [self.current_dir, old_file_name, new_file_name]
             status, response = self.comms_manager.send_message(verb=Verbs.RENAME_FILE, data=data)
@@ -241,35 +252,72 @@ class HomeController:
                 self.page.open(success_alert(f"File {old_file_name} renamed successfully to {new_file_name}"))
             else:
                 logging.debug("File renaming failed")
-                self.page.open(error_alert("File renaming failed. Please Try Again"))
+                self.page.open(error_alert(f"File renaming failed. Please Try Again. (Error Code: {response})"))
 
-        self.container.alert_dialog_text_field.value = ""
+    def rename_dir_on_click(self, old_dir_name):
+        dialog = TextFieldAlertDialog(
+            page=self.page,
+            title="Rename Dir:",
+            title_icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_ROUNDED,
+            subtitle=f"Enter the new file name for the file '{old_dir_name}':",
+            text_field_label="New File Name:",
+            modal=False
+        )
+        dialog.set_on_confirm_method(lambda e: self.rename_dir(old_dir_name, dialog=dialog))
+        self.page.open(dialog.alert)
+
+    def rename_dir(self, old_dir_name, dialog):
+        self.page.close(dialog.alert)
+        new_dir_name = dialog.get_text_field_value()
+
+        if len(new_dir_name) == 0:
+            self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
+            return
+        if not new_dir_name.isalnum():
+            self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
+            return
+        if new_dir_name in [directory.name for directory in self.container.directories]:
+            self.page.open(error_alert("Directory Name already exists. Please try again with a different name."))
+            return
+
+        data = [self.current_dir, old_dir_name, new_dir_name]
+        status, response = self.comms_manager.send_message(verb=Verbs.RENAME_DIR, data=data)
+        if status == "SUCCESS":
+            logging.debug("Directory renamed successfully")
+            self.mini_navigator()
+            self.page.open(success_alert(f"Directory {self.current_dir if self.current_dir != "/" else ""}/{old_dir_name} renamed successfully to {self.current_dir if self.current_dir != "/" else ""}/{new_dir_name}"))
+        else:
+            logging.debug("Directory renaming failed")
+            self.page.open(error_alert(f"Directory renaming failed. Please Try Again. (Error Code: {response}"))
 
     def create_dir_button_on_click(self):
-        self.container.alert_dialog_subtitle.value = "Enter the name of the new directory:"
-        self.container.alert_dialog_text_field.label = "Directory Name:"
-        self.page.open(self.container.create_dir_dialog)
+        dialog = TextFieldAlertDialog(
+            page=self.page,
+            title="Create New Directory:",
+            title_icon=ft.Icons.CREATE_NEW_FOLDER_ROUNDED,
+            subtitle="Enter the name of the new directory:",
+            text_field_label="Directory Name:",
+            modal=False
+        )
+        dialog.set_on_confirm_method(lambda e: self.create_dir_confirm_on_click(dialog))
+        self.page.open(dialog.alert)
 
-    def create_dir_confirm_on_click(self, dir_name: str):
+    def create_dir_confirm_on_click(self, dialog):
+        dir_name = dialog.get_text_field_value()
+        self.page.close(dialog.alert)
+
         logging.debug(f"Current dir: {self.current_dir}")
         logging.debug(f"Dir name: {dir_name}")
 
         if len(dir_name) == 0:
-            self.page.close(self.container.create_dir_dialog)
             self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
             return
 
-        if "/" in dir_name:
-            self.page.close(self.container.create_dir_dialog)
-            self.page.open(error_alert("Directory Name cannot contain slashes. Please try again with a different name."))
+        if not dir_name.isalnum():
+            self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
             return
 
-        if "|" in dir_name:
-            self.page.close(self.container.rename_file_dialog)
-            self.page.open(error_alert("File Name cannot contain pipes. Please try again with a different name."))
-            return
 
-        self.page.close(self.container.create_dir_dialog)
         data = [self.current_dir, dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.CREATE_DIR, data=data)
         if status == "SUCCESS":
@@ -279,18 +327,23 @@ class HomeController:
         else:
             logging.debug("Directory creation failed")
             self.mini_navigator()
-            self.page.open(error_alert("Directory name already taken. Please try again with a different name."))
-        self.container.alert_dialog_text_field.value = ""
+            self.page.open(error_alert(f"Directory name already taken. Please try again with a different name. (Error Code: {response})"))
 
     def delete_file_on_click(self, file_name):
-        self.container.delete_file_dialog_title.value = f"Are you sure you want to delete \"{file_name}\"?"
-        self.page.open(self.container.delete_file_dialog)
-        self.container.delete_file_dialog_confirm.on_click = lambda e, fn=file_name: self.delete_file(fn)
-        self.container.delete_file_dialog_cancel.on_click = lambda e: self.page.close(self.container.delete_file_dialog)
+        dialog = CancelConfirmAlertDialog(
+            page=self.page,
+            title="Confirm File Deletion",
+            title_icon=ft.Icons.DELETE_ROUNDED,
+            subtitle=f"Are you sure you want to delete the file `{file_name}`?",
+            modal=False
+        )
+        dialog.set_on_confirm_method(lambda e: self.delete_file(file_name))
+        self.page.open(dialog.alert)
 
-    def delete_file(self, file_name):
-        self.page.close(self.container.delete_file_dialog)
-        logging.debug(f"Deleting file: [{self.current_dir}, {file_name}]")
+    def delete_file(self, dialog):
+        self.page.close(dialog.alert)
+        file_name = dialog.get_text_field_value()
+        logging.debug(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_FILE, data=[self.current_dir, file_name])
         if status == "SUCCESS":
             logging.debug(f"File [{self.current_dir}, {file_name}] deleted successfully")
@@ -302,13 +355,18 @@ class HomeController:
 
 
     def delete_dir_on_click(self, directory: FolderTile):
-        self.container.delete_file_dialog_title.value = f"Are you sure you want to delete \"{directory.name}\"?"
-        self.page.open(self.container.delete_file_dialog)
-        self.container.delete_file_dialog_confirm.on_click = lambda e, d=directory: self.delete_dir(d.path, d.name)
-        self.container.delete_file_dialog_cancel.on_click = lambda e: self.page.close(self.container.delete_file_dialog)
+        dialog = CancelConfirmAlertDialog(
+            page=self.page,
+            title="Confirm Directory Deletion",
+            title_icon=ft.Icons.DELETE_ROUNDED,
+            subtitle=f"Are you sure you want to delete the directory `{directory.name}`?",
+            modal=False
+        )
+        dialog.set_on_confirm_method(lambda e: self.delete_dir(directory.path, directory.name, dialog))
+        self.page.open(dialog.alert)
 
-    def delete_dir(self, dir_path, dir_name):
-        self.page.close(self.container.delete_file_dialog)
+    def delete_dir(self, dir_path, dir_name, dialog):
+        self.page.close(dialog.alert)
         logging.debug(f"Deleting directory: [{dir_path}, {dir_name}]")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_DIR, data=[dir_path, dir_name])
         if status == "SUCCESS":
@@ -318,6 +376,7 @@ class HomeController:
         else:
             logging.debug("Directory deletion failed")
             self.page.open(error_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
+
 
     def download_file_on_click(self, file_name):
         data = [self.current_dir, file_name]
