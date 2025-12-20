@@ -1,8 +1,7 @@
-import os
 import flet as ft
 
-from Views.UIElements import error_alert
 from Dependencies.Constants import crypt_drive_purple
+from Views.UIElements import error_alert
 
 
 class SignUpView:
@@ -11,7 +10,7 @@ class SignUpView:
             controls=[
                 ft.Column(width=30, controls=[ft.Text("")]),
                 ft.Image(
-                    src=os.path.join(os.path.dirname(os.path.dirname(__file__)), "icon.png"),
+                    src="icon.png",
                     width=200,
                     height=200,
                     fit=ft.ImageFit.FIT_WIDTH

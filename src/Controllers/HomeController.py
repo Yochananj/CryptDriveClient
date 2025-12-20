@@ -159,12 +159,13 @@ class HomeController:
                     directory.tile.on_click = lambda e, dp = directory.path, dn = directory.name: self.change_dir(dp + dn)
                     directory.delete.on_click = lambda e, d = directory: self.delete_dir_on_click(d)
                     directory.rename.on_click = lambda e, d = directory: self.rename_dir_on_click(d.name)
+                    directory.move.on_click = lambda e, dn = directory.name: self.move_dir_on_click(dn)
 
                 # FileTile Download Buttons
                 for file in self.container.files:
                     file.download.on_click = lambda e, fn=file.name: self.download_file_on_click(fn)
                     file.delete.on_click = lambda e, fn=file.name: self.delete_file_on_click(fn)
-                    file.edit.on_click = lambda e, fn=file.name: self.rename_file_on_click(fn)
+                    file.rename.on_click = lambda e, fn=file.name: self.rename_file_on_click(fn)
                     file.move.on_click = lambda e, fn=file.name: self.move_file_on_click(fn)
 
 
@@ -403,10 +404,10 @@ class HomeController:
             self.page.open(error_alert("Download Failed. Please Try Again"))
 
 
-    def move_file_on_click(self, file_name, current_dialog_path=None, previous_dialog: FolderPickerAlertDialog=None):
-        if current_dialog_path:
-            logging.debug("Calling current_dialog_path...")
-            current_dialog_path = current_dialog_path()
+    def move_file_on_click(self, file_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
+        if current_dialog_path_method is not None:
+            logging.debug("Calling current_dialog_path_method...")
+            current_dialog_path = current_dialog_path_method()
         else:
             current_dialog_path = self.current_dir
         logging.debug(f"Current dialog path: {current_dialog_path}")
@@ -420,8 +421,8 @@ class HomeController:
             title=f"Moving File: `{file_name}`",
             subdirectories=subdirs,
             current_dialog_dir=current_dialog_path,
-            selected_dir_on_click_method=lambda e: self.move_file_on_click(file_name, current_dialog_path=(lambda: dialog.get_selected_directory()), previous_dialog=dialog),
-            on_confirm_method=lambda e: self.move_file(file_name, lambda: dialog.get_selected_directory(), dialog=dialog),
+            selected_dir_on_click_method=lambda e: self.move_file_on_click(file_name, current_dialog_path_method=(lambda: dialog.get_selected_directory_path_for_dialogs()), previous_dialog=dialog),
+            on_confirm_method=lambda e: self.move_file(file_name, lambda: dialog.get_selected_directory_path_for_comms(), dialog=dialog),
         )
 
         self.page.open(dialog.alert)
@@ -429,10 +430,8 @@ class HomeController:
         if previous_dialog is not None:
             self.page.close(previous_dialog.alert)
 
-
-    def move_file(self, file_name, new_file_path, dialog: FolderPickerAlertDialog=None):
-        if callable(new_file_path):
-            new_file_path = new_file_path()
+    def move_file(self, file_name, new_file_path_method, dialog: FolderPickerAlertDialog):
+        new_file_path = new_file_path_method()
         self.page.close(dialog.alert)
         data = [self.current_dir, new_file_path, file_name]
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_FILE, data=data)
@@ -444,6 +443,53 @@ class HomeController:
         else:
             logging.debug("File move failed")
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
+
+
+    def move_dir_on_click(self, dir_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
+        if current_dialog_path_method is not None:
+            logging.debug("Calling current_dialog_path_method...")
+            current_dialog_path = current_dialog_path_method()
+        else:
+            current_dialog_path = self.current_dir
+        logging.debug(f"Current dialog path: {current_dialog_path}")
+
+        dirs, files = self.get_file_list(current_dialog_path)
+        subdirs = []
+        for directory in dirs:
+            sub_dir_path = directory["path"]
+            if sub_dir_path != f"{self.current_dir if self.current_dir != "/" else ""}/{dir_name}":
+                subdirs.append(sub_dir_path)
+
+        logging.debug(f"Subdirs: {subdirs}")
+
+        dialog = FolderPickerAlertDialog(
+            page = self.page,
+            title=f"Moving Folder: `{dir_name}`",
+            subdirectories=subdirs,
+            current_dialog_dir=current_dialog_path,
+            selected_dir_on_click_method=lambda e: self.move_dir_on_click(dir_name, current_dialog_path_method=(lambda: dialog.get_selected_directory_path_for_dialogs()), previous_dialog=dialog),
+            on_confirm_method=lambda e: self.move_dir(dir_name, new_dir_path_method=lambda: dialog.get_selected_directory_path_for_comms(), dialog=dialog),
+        )
+        self.page.open(dialog.alert)
+
+        if previous_dialog is not None:
+            self.page.close(previous_dialog.alert)
+
+
+    def move_dir(self, dir_name, new_dir_path_method, dialog: FolderPickerAlertDialog):
+        new_dir_path = new_dir_path_method()
+        self.page.close(dialog.alert)
+        data = [self.current_dir, new_dir_path, dir_name]
+        status, response = self.comms_manager.send_message(verb=Verbs.MOVE_DIR, data=data)
+        if status == "SUCCESS":
+            logging.debug(f"File [{self.current_dir}, {dir_name}] moved successfully to [{new_dir_path}]")
+            self.mini_navigator()
+            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} and it's contents moved successfully to {new_dir_path}"))
+            self.change_dir(new_dir_path)
+        else:
+            logging.debug("Folder move failed")
+            self.page.open(error_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
+
 
     def get_file_list(self, path):
         logging.debug("Getting file list")

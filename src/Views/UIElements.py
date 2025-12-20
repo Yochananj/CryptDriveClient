@@ -13,7 +13,7 @@ class FileTile:
             ft.Icons.FILE_DOWNLOAD_OUTLINED,
             tooltip="Download File"
         )
-        self.edit = ft.IconButton(
+        self.rename = ft.IconButton(
             ft.Icons.EDIT,
             tooltip="Rename File"
         )
@@ -41,7 +41,7 @@ class FileTile:
                     ),
                     self.download,
                     self.move,
-                    self.edit,
+                    self.rename,
                     self.delete,
                 ]
             ), border_radius=10, bgcolor=crypt_drive_blue_semilight, padding=ft.padding.only(left=10, right=10, top=10, bottom=10)
@@ -304,12 +304,18 @@ class FolderPickerAlertDialog:
         if self.alert.page:
             self.alert.update()
 
-    def get_selected_directory(self):
+    def get_selected_directory_path_for_dialogs(self):
         logging.debug(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
-        if self.selected_dir.path == self.current_dir.path and self.selected_dir.name == self.current_dir.name:
+        if self.selected_dir == self.current_dir:
             trt = self.selected_dir.path if self.selected_dir.path == "/" else self.selected_dir.path[:-1] if self.selected_dir.path[-1] == "/" else self.selected_dir.path
         else:
             trt = self.selected_dir.path + self.selected_dir.name
+        logging.debug(f"TO RETURN STRING: {trt}")
+        return trt
+
+    def get_selected_directory_path_for_comms(self):
+        logging.debug(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
+        trt = self.selected_dir.path + self.selected_dir.name
         logging.debug(f"TO RETURN STRING: {trt}")
         return trt
 
