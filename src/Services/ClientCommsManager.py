@@ -41,13 +41,18 @@ class ClientClass:
         logging.debug("Receiving Response")
         finished = False
         response = ""
+        previous_data_chunk = b""
         while not finished:
             data_chunk = self.sock.recv(buffer_size)
-            if data_chunk.endswith(end_flag):
+            response += data_chunk.decode()
+            logging.debug(f"Received Data Chunk: {response[-len(data_chunk.decode()):]}")
+            if (previous_data_chunk + data_chunk).endswith(end_flag):
                 finished = True
-                response += data_chunk[:-len(end_flag)].decode()
+                response = response[:-len(end_flag)]
             else:
-                response += data_chunk.decode()
+                previous_data_chunk = data_chunk
+
+
         logging.debug(f"Received Response: {response}")
         str_data = None
         byte_data = None
@@ -65,6 +70,8 @@ class ClientClass:
 
         self.token = response_parts[1]
         logging.debug(f"Saved Token: {self.token}")
+
+        self.sock.close()
 
         if byte_data:
             return status, byte_data
