@@ -3,6 +3,7 @@ import logging
 import flet as ft
 
 from Views.LoginView import LoginView
+from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 from Services.PasswordHashingService import PasswordHashingService
 from Dependencies.Constants import crypt_drive_theme
@@ -42,11 +43,11 @@ class LoginController:
     def upon_log_in_click(self, page: ft.Page):
         logging.debug("Log In clicked")
         if len(self.view.username.value) < 3 or len(self.view.username.value) > 32:
-            page.open(self.view.username_length_snack_bar)
+            page.open(error_alert("Username must be between 3 and 32 characters long."))
             page.update()
             return
         if len(self.view.password.value) < 8 or len(self.view.password.value) > 64:
-            page.open(self.view.password_length_snack_bar)
+            page.open(error_alert("Password must be between 8 and 64 characters long."))
             page.update()
             return
         status, error = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[self.view.username.value, PasswordHashingService.hash(self.view.password.value)])

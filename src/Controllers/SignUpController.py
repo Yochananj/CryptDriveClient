@@ -2,6 +2,7 @@ import logging
 
 import flet as ft
 from Services.ClientCommsManager import ClientClass
+from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 from Services.PasswordHashingService import PasswordHashingService
 from Dependencies.Constants import crypt_drive_theme
@@ -46,17 +47,17 @@ class SignUpController:
 
         if self.view.password.value != self.view.password_confirmation.value:
             logging.debug("Passwords do not match.")
-            page.open(self.view.passwords_must_match_snack_bar)
+            page.open(error_alert("Password and Password Confirmation must be identical."))
             page.update()
             return
 
         if len(self.view.username.value) < 3 or len(self.view.username.value) > 32:
-            page.open(self.view.username_length_snack_bar)
+            page.open(error_alert("Username must be between 3 and 32 characters long."))
             page.update()
             return
 
         if len(self.view.password.value) < 8 or len(self.view.password.value) > 64:
-            page.open(self.view.password_length_snack_bar)
+            page.open(error_alert("Password must be between 8 and 64 characters long."))
             page.update()
             return
 
@@ -65,5 +66,5 @@ class SignUpController:
             self.navigator(ViewsAndRoutesList.HOME)
         else:
             logging.debug("Log In failed:")
-            page.open(self.view.taken_username_snack_bar)
+            page.open(error_alert("Sign Up Failed: Username is already taken."))
             page.update()

@@ -13,7 +13,9 @@ class AccountContainer:
             controls=[
                 self.title,
                 self.log_out_button,
-            ]
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+
         )
 
     def build(self):

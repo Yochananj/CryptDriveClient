@@ -24,6 +24,7 @@ class FileContainer:
             controls=[],
             expand=True,
             alignment=ft.MainAxisAlignment.START,
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH
         )
         self.tiles_column = ft.Column(
             controls=[],

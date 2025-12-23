@@ -5,7 +5,7 @@ import time
 
 import flet as ft
 
-from Dependencies.Constants import crypt_drive_blue, crypt_drive_theme, crypt_drive_fonts
+from Dependencies.Constants import crypt_drive_theme, crypt_drive_fonts
 from Dependencies.VerbDictionary import Verbs
 from Services.ClientFileService import ClientFileService
 from Views.AccountContainer import AccountContainer
@@ -29,8 +29,9 @@ class HomeController:
         self.current_dir = "/"
         self.client_file_service: ClientFileService = client_file_service
 
-        self.page.fonts = crypt_drive_fonts
+        self.selected_container: int = 0
 
+        self.page.fonts = crypt_drive_fonts
         self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
@@ -66,25 +67,30 @@ class HomeController:
 
     def mini_navigator(self, control_event=None):
         logging.debug(f"Switched to destination: {self.view.nav_rail.selected_index}")
-        logging.debug(f"Control event: {control_event}")
+        logging.debug(f"Control event: {control_event.__dict__ if control_event else 'None'}")
+        self.view.home_view_animator.content = self.view.loading
+        self.page.add(self.view.home_view_animator)
+        if self.selected_container != self.view.nav_rail.selected_index:
+            self.view.home_view_animator.update()
+            time.sleep(0.4)
 
         match self.view.nav_rail.selected_index:
             case 0:  # Files container
+                self.selected_container = 0
+
                 if control_event: self.current_dir = "/"
 
                 self.page.title = "CryptDrive: Files"
                 self.container: FileContainer = self.file_container
 
                 self.container.column.controls = []
-                self.container.tiles_column.controls = []
                 self.container.column.controls.append(self.container.title)
                 self.container.column.controls.append(self.container.animator)
 
                 self.view.body.content = self.container.build()
-                self.page.update()
-
+                self.view.home_view_animator.content = self.view.body
                 self.container.animator.content = self.container.loading
-                self.container.animator.update()
+                self.page.update()
                 time.sleep(0.4)
 
                 self.container.current_directory = FolderTile(path=self.current_dir, item_count=None, compact_tile=True)
@@ -94,6 +100,7 @@ class HomeController:
                 self.container.subtitle_row.controls.append(self.container.upload_file_button)
                 self.container.subtitle_row.controls.append(self.container.create_dir_button)
 
+                self.container.tiles_column.controls = []
                 self.container.tiles_column.controls.append(self.container.subtitle_row)
 
                 dir_list, file_list = self.get_file_list(self.current_dir)
@@ -119,30 +126,33 @@ class HomeController:
                 for file in self.container.files:
                     self.container.tiles_column.controls.append(file.tile)
                 self.container.animator.content = self.container.tiles
+                self.container.animator.update()
 
 
             case 1:  # Account container
+                self.selected_container = 1
+
                 self.page.title = "CryptDrive: Account"
                 self.container: AccountContainer = self.account_container
+                self.view.body.content = self.container.build()
+
 
             case 2:  # Settings container
+                self.selected_container = 2
+
                 self.page.title = "CryptDrive: Settings"
                 self.container: SettingsContainer = self.settings_container
+                self.view.body.content = self.container.build()
 
-        self.view.body.content = self.container.build()
-        self.container.title.font_family = "Aeonik Black"
-        self.container.title.size = 90
-        self.container.title.color = crypt_drive_blue
-        self.container.column.horizontal_alignment = ft.CrossAxisAlignment.STRETCH
+        self.view.home_view_animator.content = self.view.body
+        self.view.home_view_animator.update()
 
         self.attach_handlers_per_destination()
-
         self.page.update()
 
     def attach_handlers_per_destination(self):
         match self.view.nav_rail.selected_index:
             case 0:  # Files container
-                self.container.animator.update()
 
                 # Current Dir FolderTile
                 if self.container.current_directory.path + self.container.current_directory.name != "/":

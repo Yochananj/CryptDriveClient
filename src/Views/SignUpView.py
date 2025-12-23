@@ -26,14 +26,6 @@ class SignUpView:
 
         self.switch_to_log_in_button = ft.ElevatedButton(text="Log In Instead", width=300, disabled=False)
 
-        self.taken_username_snack_bar = error_alert("Sign Up Failed: Username is already taken.")
-
-        self.passwords_must_match_snack_bar = error_alert("Password and Password Confirmation must be identical.")
-
-        self.username_length_snack_bar = error_alert("Username must be between 3 and 32 characters long.")
-
-        self.password_length_snack_bar = error_alert("Password must be between 8 and 64 characters long.")
-
 
     def build(self):
         return ft.View(

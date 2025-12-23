@@ -21,8 +21,6 @@ class LoginView:
         self.log_in_button = ft.ElevatedButton(text="Log In", width=300, disabled=True)
         self.switch_to_sign_up_button = ft.ElevatedButton(text="Sign Up Instead", width=300, disabled=False)
         self.log_in_failed_snack_bar = error_alert("Log In Failed: Check Username and Password")
-        self.username_length_snack_bar = error_alert("Username must be between 3 and 32 characters long.")
-        self.password_length_snack_bar = error_alert("Password must be between 8 and 64 characters long.")
 
     def build(self):
         return ft.View(

@@ -1,5 +1,3 @@
-import os
-
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_light, crypt_drive_purple
@@ -55,6 +53,17 @@ class HomeView:
             alignment=ft.Alignment(0,-1),
         )
 
+        self.loading = ft.Container()
+
+        self.home_view_animator = ft.AnimatedSwitcher(
+            content=self.loading,
+            transition=ft.AnimatedSwitcherTransition.FADE,
+            duration=400,
+            reverse_duration=400,
+            switch_in_curve=ft.AnimationCurve.EASE_IN,
+            switch_out_curve=ft.AnimationCurve.EASE_OUT,
+        )
+
 
     def build(self):
         return ft.View(route="/home",
@@ -62,13 +71,12 @@ class HomeView:
                            ft.Row(
                            controls=[
                                self.nav_rail,
-                               self.body
+                               self.home_view_animator
                            ],
                            expand=True
                             )
                        ],
                 )
-
 
 def test(page: ft.Page):
     page.views.append(
