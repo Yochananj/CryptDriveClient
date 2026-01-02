@@ -250,7 +250,6 @@ class CancelConfirmAlertDialog:
     def set_on_confirm_method(self, method):
         self.confirm.on_click = method
 
-
 class FolderPickerAlertDialog:
     def __init__(self, page: ft.Page, title: str, subdirectories, current_dialog_dir, selected_dir_on_click_method, on_confirm_method):
 
@@ -319,22 +318,3 @@ class FolderPickerAlertDialog:
         logging.debug(f"TO RETURN STRING: {trt}")
         return trt
 
-
-
-
-def test(page: ft.Page):
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.scroll = True
-    alert = FolderPickerAlertDialog(page, "Select a folder", ["test1", "test2", "test3", "test4", "test1", "test2", "test3", "test4", "test1", "test2", "test3", "test4"], "/")
-    for i in range(10):
-        row = ft.Row(controls=[])
-        tile = FolderTile(f"index: {i}", 0, True, True).tile
-        row.controls.append(tile)
-        tile.on_click = lambda e: page.open(alert.alert)
-        page.add(row)
-
-    page.update()
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    ft.app(test)

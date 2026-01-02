@@ -5,7 +5,7 @@ import platform
 import flet as ft
 
 from Services.ClientFileService import ClientFileService
-from Services.ClientCommsManager import ClientClass
+from Services.ClientCommsManager import ClientCommsManager
 
 from Controllers.HomeController import HomeController
 from Controllers.LoginController import LoginController
@@ -23,7 +23,7 @@ class GUI:
     def __init__(self, page: ft.Page):
         self.top_view = None
         self.controller = None
-        self.comms_manager = ClientClass()
+        self.comms_manager = ClientCommsManager()
         self.file_service = ClientFileService()
 
         self.page = page
@@ -54,7 +54,7 @@ class GUI:
         match to_page:
             case ViewsAndRoutesList.LOG_IN:
                 timed_out = False
-                if self.comms_manager.token != "no_token": timed_out = True
+                if self.comms_manager.login_token != "no_token": timed_out = True
 
                 self.page.title = "CryptDrive: Log In"
                 self.page.views.clear()

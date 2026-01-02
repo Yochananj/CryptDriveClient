@@ -42,7 +42,6 @@ class HomeController:
         self.mini_navigator()
         self.attach_handlers()
 
-
     def attach_handlers(self):
         self.view.nav_rail.on_change = self.mini_navigator
         self.attach_handlers_per_destination()
@@ -357,12 +356,11 @@ class HomeController:
             subtitle=f"Are you sure you want to delete the file `{file_name}`?",
             modal=False
         )
-        dialog.set_on_confirm_method(lambda e: self.delete_file(file_name))
+        dialog.set_on_confirm_method(lambda e, fn=file_name, d=dialog: self.delete_file(fn, d))
         self.page.open(dialog.alert)
 
-    def delete_file(self, dialog):
+    def delete_file(self, file_name: str, dialog: CancelConfirmAlertDialog):
         self.page.close(dialog.alert)
-        file_name = dialog.get_text_field_value()
         logging.debug(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_FILE, data=[self.current_dir, file_name])
         if status == "SUCCESS":
@@ -372,7 +370,6 @@ class HomeController:
         else:
             logging.debug("File deletion failed")
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} Deletion Failed. Please Try Again"))
-
 
     def delete_dir_on_click(self, directory: FolderTile):
         dialog = CancelConfirmAlertDialog(
@@ -397,7 +394,6 @@ class HomeController:
             logging.debug("Directory deletion failed")
             self.page.open(error_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
 
-
     def download_file_on_click(self, file_name):
         data = [self.current_dir, file_name]
         status, file_bytes = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
@@ -412,7 +408,6 @@ class HomeController:
         else:
             logging.debug("Download failed")
             self.page.open(error_alert("Download Failed. Please Try Again"))
-
 
     def move_file_on_click(self, file_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
         if current_dialog_path_method is not None:
@@ -454,7 +449,6 @@ class HomeController:
             logging.debug("File move failed")
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
 
-
     def move_dir_on_click(self, dir_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
         if current_dialog_path_method is not None:
             logging.debug("Calling current_dialog_path_method...")
@@ -485,7 +479,6 @@ class HomeController:
         if previous_dialog is not None:
             self.page.close(previous_dialog.alert)
 
-
     def move_dir(self, dir_name, new_dir_path_method, dialog: FolderPickerAlertDialog):
         new_dir_path = new_dir_path_method()
         self.page.close(dialog.alert)
@@ -500,7 +493,6 @@ class HomeController:
             logging.debug("Folder move failed")
             self.page.open(error_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
 
-
     def get_file_list(self, path):
         logging.debug("Getting file list")
         status, dirs_and_files = self.comms_manager.send_message(verb=Verbs.GET_ITEMS_LIST, data=[path])
@@ -513,5 +505,5 @@ class HomeController:
         return dirs, files
 
     def log_out(self):
-        self.comms_manager.token = 'no_token'
+        self.comms_manager.login_token = 'no_token'
         self.navigator(ViewsAndRoutesList.LOG_IN)

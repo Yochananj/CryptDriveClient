@@ -19,8 +19,6 @@ class HomeView:
                     height=100,
                     fit=ft.ImageFit.FIT_WIDTH,
                 ),
-                url="https://github.com/Yochananj/CyberFinalProject",
-                tooltip="About CryptDrive (Click)"
             ),
 
             destinations=[

@@ -1,7 +1,7 @@
 import logging
 
 import flet as ft
-from Services.ClientCommsManager import ClientClass
+from Services.ClientCommsManager import ClientCommsManager
 from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 from Services.PasswordHashingService import PasswordHashingService
@@ -10,7 +10,7 @@ from Dependencies.VerbDictionary import Verbs
 
 
 class SignUpController:
-    def __init__(self, page: ft.Page, view, navigator, comms_manager: ClientClass):
+    def __init__(self, page: ft.Page, view, navigator, comms_manager: ClientCommsManager):
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager

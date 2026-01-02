@@ -23,11 +23,15 @@ crypt_drive_fonts = {
 }
 
 # Flags
-seperator = "|||"
+separator = "|||"
 byte_data_flag = b"||| BYTE DATA |||"
 string_data_flag = b"||| STRING DATA |||"
 end_flag = b"||| END |||"
 
+# Encryption Flags
+init_flag = b"(&) INIT (&)"
+resume_flag = b"(&) RESUME (&)"
+encryption_separator = b"(&) SEP (&)"
 
 # Common Constants
 server_address = "127.0.0.1"
