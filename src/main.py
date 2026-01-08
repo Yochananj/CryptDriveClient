@@ -10,6 +10,7 @@ from Services.ClientCommsManager import ClientCommsManager
 from Controllers.HomeController import HomeController
 from Controllers.LoginController import LoginController
 from Controllers.SignUpController import SignUpController
+from Services.FileEncryptionService import FileEncryptionService
 
 from Views.UIElements import error_alert
 from Views.HomeView import HomeView
@@ -25,6 +26,7 @@ class GUI:
         self.controller = None
         self.comms_manager = ClientCommsManager()
         self.file_service = ClientFileService()
+        self.file_encryption_service = FileEncryptionService()
 
         self.page = page
         self.page.window.icon = "window_icon.ico"
@@ -61,7 +63,7 @@ class GUI:
                 self.top_view = LoginView(username_start_value=username, password_start_value=password)
                 self.page.theme= crypt_drive_theme
                 self.page.views.append(self.top_view.build())
-                self.controller = LoginController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager)
+                self.controller = LoginController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager, file_encryption_service=self.file_encryption_service)
 
                 if timed_out: self.page.open(error_alert("Your Log In timed out. Please log in again."))
             case ViewsAndRoutesList.SIGN_UP:
@@ -70,13 +72,13 @@ class GUI:
                 self.top_view = SignUpView(username_start_value=username, password_start_value=password)
                 self.page.theme= crypt_drive_theme
                 self.page.views.append(self.top_view.build())
-                self.controller = SignUpController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager)
+                self.controller = SignUpController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager, file_encryption_service=self.file_encryption_service)
             case ViewsAndRoutesList.HOME:
                 self.page.title = "CryptDrive: Home - Files"
                 self.page.views.clear()
                 self.top_view = HomeView(self.page.window.height, self.page.window.width)
                 self.page.views.append(self.top_view.build())
-                self.controller = HomeController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager, client_file_service=self.file_service)
+                self.controller = HomeController(page=self.page, view=self.top_view, navigator=self.navigator, comms_manager=self.comms_manager, client_file_service=self.file_service, file_encryption_service=self.file_encryption_service)
 
         self.page.update()
 

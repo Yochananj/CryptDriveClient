@@ -20,7 +20,6 @@ class LoginView:
         self.password = ft.TextField(value=password_start_value, label="Password", width=300, text_vertical_align=ft.VerticalAlignment.START, password=True, prefix_icon=ft.Icon(ft.Icons.KEY_ROUNDED, color=crypt_drive_purple), can_reveal_password=True)
         self.log_in_button = ft.ElevatedButton(text="Log In", width=300, disabled=True)
         self.switch_to_sign_up_button = ft.ElevatedButton(text="Sign Up Instead", width=300, disabled=False)
-        self.log_in_failed_snack_bar = error_alert("Log In Failed: Check Username and Password")
 
     def build(self):
         return ft.View(

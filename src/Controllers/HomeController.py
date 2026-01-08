@@ -2,12 +2,14 @@ import json
 import logging
 import os.path
 import time
+from base64 import b64decode
 
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_theme, crypt_drive_fonts
 from Dependencies.VerbDictionary import Verbs
 from Services.ClientFileService import ClientFileService
+from Services.FileEncryptionService import FileEncryptionService
 from Views.AccountContainer import AccountContainer
 from Views.FileContainer import FileContainer
 from Views.HomeView import HomeView
@@ -18,10 +20,12 @@ from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
 class HomeController:
-    def __init__(self, page: ft.Page, view: HomeView, navigator, comms_manager, client_file_service: ClientFileService):
+    def __init__(self, page: ft.Page, view: HomeView, navigator, comms_manager, client_file_service: ClientFileService, file_encryption_service: FileEncryptionService):
         self.view: HomeView = view
         self.navigator = navigator
         self.comms_manager = comms_manager
+        self.file_encryption_service = file_encryption_service
+
         self.page: ft.Page = page
         self.page.theme = crypt_drive_theme
         self.page.scroll = True
@@ -90,7 +94,7 @@ class HomeController:
                 self.view.home_view_animator.content = self.view.body
                 self.container.animator.content = self.container.loading
                 self.page.update()
-                time.sleep(0.4)
+                time.sleep(0.3)
 
                 self.container.current_directory = FolderTile(path=self.current_dir, item_count=None, compact_tile=True)
 
@@ -197,7 +201,10 @@ class HomeController:
         logging.debug(f"Uploading file: {file}")
         file_name = os.path.basename(file)
         file_contents = self.client_file_service.read_file_from_disk(file)
-        status, response = self.comms_manager.send_message(Verbs.CREATE_FILE, [self.current_dir, file_name, file_contents])
+
+        encrypted_file_contents, file_nonce = self.file_encryption_service.encrypt_file(file_contents)
+
+        status, response = self.comms_manager.send_message(Verbs.CREATE_FILE, [self.current_dir, file_name, file_nonce, encrypted_file_contents])
         if status == "SUCCESS":
             logging.debug("File uploaded successfully")
             self.mini_navigator()
@@ -396,13 +403,18 @@ class HomeController:
 
     def download_file_on_click(self, file_name):
         data = [self.current_dir, file_name]
-        status, file_bytes = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
+        status, encrypted_file_bytes_nonce_tuple = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
+        encrypted_file_bytes, nonce = encrypted_file_bytes_nonce_tuple
         if status == "SUCCESS":
-            logging.debug("Download successful \n Writing to file")
+            logging.debug("Download successful \n Decrypting file bytes...")
+            file_bytes = self.file_encryption_service.decrypt_file(encrypted_file_bytes, b64decode(nonce))
+
             self.page.window.to_front()
             path_to_save_to = self.client_file_service.save_file_dialog(file_name)
             logging.debug(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
-            if path_to_save_to is None or path_to_save_to == "": return
+            if path_to_save_to is None or "":
+                return
+
             self.client_file_service.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
             logging.debug("File saved successfully")
         else:

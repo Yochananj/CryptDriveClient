@@ -1,32 +1,35 @@
 import logging
+from os import urandom
 
 import flet as ft
+
+from Dependencies.VerbDictionary import Verbs
 from Services.ClientCommsManager import ClientCommsManager
+from Services.FileEncryptionService import FileEncryptionService
+from Services.PasswordHashingService import PasswordHashingService
 from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
-from Services.PasswordHashingService import PasswordHashingService
-from Dependencies.Constants import crypt_drive_theme
-from Dependencies.VerbDictionary import Verbs
 
 
 class SignUpController:
-    def __init__(self, page: ft.Page, view, navigator, comms_manager: ClientCommsManager):
+    def __init__(self, page: ft.Page, view, navigator, comms_manager: ClientCommsManager, file_encryption_service: FileEncryptionService):
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager
-        self.upon_text_field_change(page)
-        self.attach_handlers(page)
-        page.theme = crypt_drive_theme
+        self.file_encryption_service = file_encryption_service
 
-    def attach_handlers(self, page: ft.Page):
-        self.view.username.on_change = lambda e: self.upon_text_field_change(page)
-        self.view.password.on_change = lambda e: self.upon_text_field_change(page)
-        self.view.password_confirmation.on_change = lambda e: self.upon_text_field_change(page)
-        self.view.sign_up_button.on_click = lambda e: self.upon_sign_up_click(page)
-        self.view.switch_to_log_in_button.on_click = lambda e: self.upon_switch_to_log_in_click(page)
+        self._upon_text_field_change(page)
+        self._attach_handlers(page)
+
+    def _attach_handlers(self, page: ft.Page):
+        self.view.username.on_change = lambda e: self._upon_text_field_change(page)
+        self.view.password.on_change = lambda e: self._upon_text_field_change(page)
+        self.view.password_confirmation.on_change = lambda e: self._upon_text_field_change(page)
+        self.view.sign_up_button.on_click = lambda e: self._upon_sign_up_click(page)
+        self.view.switch_to_log_in_button.on_click = lambda e: self._upon_switch_to_log_in_click(page)
 
 
-    def upon_text_field_change(self, page: ft.Page):
+    def _upon_text_field_change(self, page: ft.Page):
         if self.view.username.value and self.view.password.value and self.view.password_confirmation.value:
             self.view.sign_up_button.disabled = False
         else:
@@ -34,7 +37,7 @@ class SignUpController:
         page.update()
 
 
-    def upon_switch_to_log_in_click(self, page: ft.Page):
+    def _upon_switch_to_log_in_click(self, page: ft.Page):
         current_entry_username = ""
         current_entry_password = ""
         if self.view.username.value: current_entry_username = self.view.username.value
@@ -42,7 +45,7 @@ class SignUpController:
         self.navigator(ViewsAndRoutesList.LOG_IN, username=current_entry_username, password=current_entry_password)
         page.update()
 
-    def upon_sign_up_click(self, page: ft.Page):
+    def _upon_sign_up_click(self, page: ft.Page):
         logging.debug("Sign Up clicked")
 
         if self.view.password.value != self.view.password_confirmation.value:
@@ -61,7 +64,17 @@ class SignUpController:
             page.update()
             return
 
-        status, error = self.comms_manager.send_message(Verbs.SIGN_UP, [self.view.username.value, PasswordHashingService.hash(self.view.password.value)])
+        username, password = self.view.username.value, self.view.password.value
+        password_hash = PasswordHashingService.hash(password)
+
+        salt = urandom(16)
+        self.file_encryption_service.derive_and_store_derived_key_from_password(password, salt)
+
+        encrypted_file_master_key, nonce = self.file_encryption_service.generate_encrypted_file_master_key()
+
+        logging.critical(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
+
+        status, response_data = self.comms_manager.send_message(Verbs.SIGN_UP, [username, password_hash, salt, encrypted_file_master_key, nonce])
         if status == "SUCCESS":
             self.navigator(ViewsAndRoutesList.HOME)
         else:

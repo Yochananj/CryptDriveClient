@@ -1,8 +1,9 @@
+import json
 import logging
+from base64 import b64encode
 
 from Dependencies.Constants import *
 from Dependencies.VerbDictionary import Verbs
-from Services.PasswordHashingService import PasswordHashingService
 from Services.SecureCommunicationManager import SecureCommunicationManager
 
 
@@ -19,18 +20,18 @@ class ClientCommsManager:
         logging.debug(f"Sending Message: {message} \n waiting for response... \n")
 
         response = self.secure_connection_manager.send_encrypted_message(message.encode(), will_send_data=(verb == Verbs.CREATE_FILE))
-        status, response_code =  self._process_response(response)
+        status, response_data = self._process_response(response)
 
-        if response_code == "READY_FOR_DATA":
+        if response_data == "READY_FOR_DATA":
             logging.debug("Sending data")
             str_to_send = data[-1]
             response = self.secure_connection_manager.send_encrypted_data(str_to_send)
             logging.debug("Data sent \n waiting for response.")
-            status,response_code = self._process_response(response)
+            status,response_data = self._process_response(response)
         elif verb == Verbs.CREATE_FILE:
             self.secure_connection_manager.close_connection()
 
-        return status,response_code
+        return status, response_data
 
     def _process_response(self, response: bytes):
         logging.debug(f"Received Response: {response}")
@@ -53,10 +54,10 @@ class ClientCommsManager:
         self.login_token = response_parts[1]
         logging.debug(f"Saved Token: {self.login_token}")
 
-        response_code = response_parts[2] if len(response_parts) > 2 else None
+        response_code = response_parts[2]
 
         if byte_data:
-            return status, byte_data
+            return status, (byte_data, response_code)
         elif str_data:
             return status, str_data
         else:
@@ -64,12 +65,14 @@ class ClientCommsManager:
 
     def _write_message(self, verb: Verbs, data_parts: list):
         logging.debug(f"Writing Message: {verb}, {data_parts}")
-        message = verb.value + separator + self.login_token + separator
-        logging.debug(f"Current Message: {message}")
-        for i in range(len(data_parts) - 1):
-            message += data_parts[i] + separator
-            logging.debug(f"Current Message: {message}, index: {i}")
-        message += data_parts[-1]
+        decoded_parts = []
+        for i in range(len(data_parts)):
+            part = data_parts[i]
+            if isinstance(part, str):
+                decoded_parts.append((part, "str"))
+            else:
+                decoded_parts.append((b64encode(part).decode(), "bytes"))
+        message = verb.value + separator + self.login_token + separator + json.dumps(decoded_parts)
         logging.debug(f"Final Message: {message}")
         return message
 
@@ -78,10 +81,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     client = ClientCommsManager()
 
-    client.send_message(Verbs.LOG_IN, ["qwe", PasswordHashingService.hash("qwe qwe qwe")])
+    client.send_message(Verbs.LOG_IN, ["qwe", "qwe qwe qwe"])
 
     with open("/Users/yocha/Python Stuff/www/R8.jpg", "rb") as file:
         file_contents = file.read(-1)
 
     client.send_message(Verbs.CREATE_FILE, ["/", "R8.jpg", file_contents])
-
