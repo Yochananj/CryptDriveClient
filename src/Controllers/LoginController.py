@@ -54,9 +54,10 @@ class LoginController:
             page.update()
             return
 
-        username, password = self.view.username.value, PasswordHashingService.hash(self.view.password.value)
+        username, password = self.view.username.value, self.view.password.value
+        password_hash = PasswordHashingService.hash(password)
 
-        status, response_data = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[username, password])
+        status, response_data = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[username, password_hash])
         if status == "SUCCESS":
             user_data = json.loads(response_data)
             salt = b64decode(user_data["salt"].encode())

@@ -256,7 +256,7 @@ class HomeController:
             return
 
         if override_file_extension:
-            self.page.close(file_extension_change_dialog)
+            self.page.close(file_extension_change_dialog.alert)
 
         if old_file_name == new_file_name:
             return

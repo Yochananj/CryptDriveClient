@@ -54,7 +54,7 @@ class ClientCommsManager:
         self.login_token = response_parts[1]
         logging.debug(f"Saved Token: {self.login_token}")
 
-        response_code = response_parts[2]
+        response_code = response_parts[2] if len(response_parts) > 2 else ""
 
         if byte_data:
             return status, (byte_data, response_code)
