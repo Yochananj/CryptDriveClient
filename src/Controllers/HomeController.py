@@ -386,7 +386,7 @@ class HomeController:
             subtitle=f"Are you sure you want to delete the directory `{directory.name}`?",
             modal=False
         )
-        dialog.set_on_confirm_method(lambda e: self.delete_dir(directory.path, directory.name, dialog))
+        dialog.set_on_confirm_method(lambda e, dp = directory.path, dn = directory.name: self.delete_dir(dp[:-1] if dp.endswith("/") and dp != "/" else dp, dn, dialog))
         self.page.open(dialog.alert)
 
     def delete_dir(self, dir_path, dir_name, dialog):
