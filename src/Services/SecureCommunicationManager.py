@@ -54,7 +54,7 @@ class SecureCommunicationManager:
         self.is_connected = False
 
     def _receive_response(self, encrypted_message):
-        data_parts = self._recive_data_parts_from_server()
+        data_parts = self._receive_data_parts_from_server()
         if data_parts[0] == init_flag:
             self.encryption_key = None
             self.encryption_token = b""
@@ -85,7 +85,7 @@ class SecureCommunicationManager:
         self.sock.sendall(self._write_encrypted_data(message=public_key_bytes, encryption_flag=init_flag, encrypt_message=False))
         logging.debug("Sent Initialization Flag and Public Key Bytes")
 
-        data_parts = self._recive_data_parts_from_server()
+        data_parts = self._receive_data_parts_from_server()
         self.encryption_token, server_public_key_bytes = data_parts[1], data_parts[3]
 
         logging.debug(f"Received server public key bytes: {server_public_key_bytes}")
@@ -111,7 +111,7 @@ class SecureCommunicationManager:
         encrypted_message = self.aesgcm.encrypt(nonce, message, None) if message != b"" and encrypt_message else message
         return encryption_flag + encryption_separator + self.encryption_token + encryption_separator + nonce + encryption_separator + encrypted_message + end_flag
 
-    def _recive_data_parts_from_server(self) -> list[bytes]:
+    def _receive_data_parts_from_server(self) -> list[bytes]:
         data = b""
         finished = False
         while not finished:

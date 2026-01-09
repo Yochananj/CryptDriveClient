@@ -1,6 +1,5 @@
 import flet as ft
 
-from Views.UIElements import error_alert
 from Dependencies.Constants import crypt_drive_purple
 
 
@@ -40,7 +39,6 @@ class LoginView:
                     alignment=ft.MainAxisAlignment.CENTER
                 )
             ],
-            can_pop=False,
             vertical_alignment=ft.MainAxisAlignment.CENTER
         )
 

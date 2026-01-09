@@ -1,7 +1,6 @@
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_purple
-from Views.UIElements import error_alert
 
 
 class SignUpView:
@@ -41,7 +40,6 @@ class SignUpView:
                         self.switch_to_log_in_button]
                     )],
                 alignment=ft.MainAxisAlignment.CENTER)],
-            can_pop=False,
             vertical_alignment=ft.MainAxisAlignment.CENTER
         )
 
