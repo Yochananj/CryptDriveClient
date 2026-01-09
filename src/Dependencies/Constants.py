@@ -34,7 +34,7 @@ resume_flag = b"(&) RESUME (&)"
 encryption_separator = b"(&) SEP (&)"
 
 # Common Constants
-server_address = "127.0.0.1"
+server_address = input("Enter Server Address: ")
 server_port = 8081
 host_addr = (server_address, server_port)
 
