@@ -32,10 +32,12 @@ class FileTile:
                     ft.Column(
                         controls=[
                             ft.Row(
-                                controls =[
+                                controls = [
                                     ft.Text(self.name, font_family="Aeonik Bold", size=20),
                                     ft.Text(f"Size: {self.size} bytes", font_family="Aeonik", size=16)
-                                ]
+                                ],
+                                height=40,
+                                expand = False
                             )
                         ], expand = True
                     ),
@@ -43,8 +45,13 @@ class FileTile:
                     self.move,
                     self.rename,
                     self.delete,
-                ]
-            ), border_radius=10, bgcolor=crypt_drive_blue_semilight, padding=ft.padding.only(left=10, right=10, top=10, bottom=10)
+                ],
+                expand=False
+            ),
+            border_radius=10,
+            bgcolor=crypt_drive_blue_semilight,
+            padding=ft.padding.only(left=10, right=10, top=10, bottom=10),
+            expand=False
         )
 
 
@@ -119,6 +126,7 @@ class FolderTile:
                                         ft.Text(f"{self._get_items_string(self.items)}", font_family="Aeonik", size=16)
                                     ],
                                     height=40,
+                                    expand=False
                                 )
                             ],
                             expand=True,
@@ -127,6 +135,7 @@ class FolderTile:
                         self.rename,
                         self.delete,
                     ],
+                    expand=False
                 ),
                 border_radius=10,
                 bgcolor=crypt_drive_blue_semilight,
@@ -175,52 +184,68 @@ def success_alert(success_message: str):
 class TextFieldAlertDialog:
     def __init__(
             self,
-            page:ft.Page,
+            page: ft.Page,
             title: str,
             title_icon: ft.Icons,
             subtitle: str,
-            text_field_label: str,
-            modal=False):
+            text_fields: list[str],
+            modal: bool = False,
+            password_fields: bool = False
+            ):
 
-
-        self.text_field = ft.TextField(
-            value="",
-            width=300,
-            label=text_field_label,
-            autofocus=True,
+        self.text_fields = ft.Column(
+            controls=[],
         )
+
+        for i in range(len(text_fields)):
+            self.text_fields.controls.append(ft.TextField(label=text_fields[i], password=password_fields))
+
         self.content = ft.Container(
             content=
             ft.Column(
                 controls=[
                     ft.Text(subtitle, font_family="Aeonik"),
-                    self.text_field
+                    self.text_fields
                 ],
             ),
             alignment=ft.Alignment(0,0),
             width=400,
-            height=90,
-            expand=False
+            height = 90 + 50 * (len(text_fields) - 1),
         )
         self.alert = ft.AlertDialog(
             title=ft.Row([
                 ft.Icon(title_icon, color=crypt_drive_purple),
                 ft.Text(title, font_family="Aeonik Bold")
-            ]),
+                ],
+            ),
             modal=modal,
             content=self.content,
             bgcolor=crypt_drive_blue_semilight,
+
         )
         self.cancel = ft.TextButton(text="Cancel", on_click=lambda e: page.close(self.alert))
-        self.confirm = ft.TextButton(text="Confirm")
+        self.confirm = ft.TextButton(text="Confirm", disabled=True)
         self.alert.actions=[self.cancel, self.confirm]
 
+        for text_field in self.text_fields.controls:
+            text_field.on_change = lambda e: self._update_confirm_button_status()
 
     def set_on_confirm_method(self, method):
         self.confirm.on_click = method
 
-    def get_text_field_value(self):
-        return self.text_field.value
+    def get_text_field_values(self) -> list[str]:
+        return [text_field.value for text_field in self.text_fields.controls]
+
+    def _update_confirm_button_status(self):
+        self.confirm.disabled = not self._do_all_text_fields_have_a_value()
+        self.alert.update()
+
+    def _do_all_text_fields_have_a_value(self):
+        for text_field in self.text_fields.controls:
+            if text_field.value == "":
+                return False
+        else:
+            return True
 
 
 class CancelConfirmAlertDialog:

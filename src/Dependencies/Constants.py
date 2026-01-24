@@ -7,6 +7,8 @@ app_name = "CryptDrive"
 app_author = "YochananJulian"
 
 # GUI Constants
+title_size = 69
+
 crypt_drive_blue_light = "#E6E8FE"
 crypt_drive_blue_semilight = "#CDD2FE"
 crypt_drive_blue_medium_light = "#B4BBFC"
@@ -34,7 +36,7 @@ resume_flag = b"(&) RESUME (&)"
 encryption_separator = b"(&) SEP (&)"
 
 # Common Constants
-server_address = input("Enter Server Address: ")
+server_address = "localhost"
 server_port = 8081
 host_addr = (server_address, server_port)
 

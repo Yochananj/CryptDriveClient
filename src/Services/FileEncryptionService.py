@@ -11,21 +11,23 @@ class FileEncryptionService:
         self.encrypted_master_key_nonce: bytes = None
         self.derived_key: bytes = None
         self.derived_key_aesgcm: AESGCM = None
+        self.salt: bytes = None
 
-    def encrypt_file(self, file_bytes: bytes) -> tuple[bytes, bytes]:
-        decrypted_file_master_key = self._decrypt_file_master_key()
-        temp_aesgcm = AESGCM(decrypted_file_master_key)
-        nonce: bytes = urandom(12)
-        encrypted_file_bytes = temp_aesgcm.encrypt(nonce, file_bytes, None)
-        return encrypted_file_bytes, nonce
+    def create_new_encryption_credentials_from_password(self, password, new_file_master_key=False):
+        salt = urandom(16)
+        if new_file_master_key:
+            self.derive_and_store_derived_key_from_password_and_salt(password, salt)
+            encrypted_file_master_key, nonce = self._generate_encrypted_file_master_key()
+            self.store_encrypted_master_key_and_nonce(encrypted_file_master_key, nonce)
+        else:
+            decrypted_file_master_key = self._decrypt_file_master_key()
+            self.derive_and_store_derived_key_from_password_and_salt(password, salt)
+            encrypted_file_master_key, nonce = self._encrypt_file_master_key(decrypted_file_master_key)
+            self.store_encrypted_master_key_and_nonce(encrypted_file_master_key, nonce)
+        return salt, encrypted_file_master_key, nonce
 
-    def decrypt_file(self, encrypted_file_bytes: bytes, file_nonce: bytes) -> bytes:
-        decrypted_file_master_key = self._decrypt_file_master_key()
-        temp_aesgcm = AESGCM(decrypted_file_master_key)
-        decrypted_file_bytes = temp_aesgcm.decrypt(file_nonce, encrypted_file_bytes, None)
-        return decrypted_file_bytes
-
-    def derive_and_store_derived_key_from_password(self, password: str, salt: bytes) -> None:
+    def derive_and_store_derived_key_from_password_and_salt(self, password: str, salt: bytes) -> None:
+        self.salt = salt
         self.derived_key = hash_secret_raw(
             secret=password.encode(),
             salt=salt,
@@ -41,22 +43,31 @@ class FileEncryptionService:
         self.encrypted_master_key = encrypted_master_key
         self.encrypted_master_key_nonce = nonce
 
-    def generate_encrypted_file_master_key(self) -> tuple[bytes, bytes]:
+    def encrypt_file(self, file_bytes: bytes) -> tuple[bytes, bytes]:
+        decrypted_file_master_key = self._decrypt_file_master_key()
+        temp_aesgcm = AESGCM(decrypted_file_master_key)
+        nonce: bytes = urandom(12)
+        encrypted_file_bytes = temp_aesgcm.encrypt(nonce, file_bytes, None)
+        return encrypted_file_bytes, nonce
+
+    def decrypt_file(self, encrypted_file_bytes: bytes, file_nonce: bytes) -> bytes:
+        decrypted_file_master_key = self._decrypt_file_master_key()
+        temp_aesgcm = AESGCM(decrypted_file_master_key)
+        decrypted_file_bytes = temp_aesgcm.decrypt(file_nonce, encrypted_file_bytes, None)
+        return decrypted_file_bytes
+
+    def _generate_encrypted_file_master_key(self) -> tuple[bytes, bytes]:
         file_master_key = AESGCM.generate_key(bit_length=256)
-        logging.critical(f"File Master Key: {file_master_key}")
 
         encrypted_file_master_key, nonce = self._encrypt_file_master_key(file_master_key)
-        logging.critical(f"Encrypted File Master Key: {encrypted_file_master_key}, Nonce: {nonce}")
 
-        self.store_encrypted_master_key_and_nonce(encrypted_file_master_key, nonce)
         return encrypted_file_master_key, nonce
 
     def _encrypt_file_master_key(self, file_master_key: bytes) -> tuple[bytes, bytes]:
-        nonce = urandom(12)
-        encrypted_file_master_key = self.derived_key_aesgcm.encrypt(nonce, file_master_key, None)
-        return encrypted_file_master_key, nonce
+            nonce = urandom(12)
+            encrypted_file_master_key = self.derived_key_aesgcm.encrypt(nonce, file_master_key, None)
+            return encrypted_file_master_key, nonce
 
     def _decrypt_file_master_key(self) -> bytes:
         logging.critical(f"Decrypting File Master Key: {self.encrypted_master_key}\n Nonce: {self.encrypted_master_key_nonce}\nDerived Key: {self.derived_key}")
         return self.derived_key_aesgcm.decrypt(self.encrypted_master_key_nonce, self.encrypted_master_key, None)
-

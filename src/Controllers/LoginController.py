@@ -6,18 +6,19 @@ import flet as ft
 
 from Dependencies.VerbDictionary import Verbs
 from Services.FileEncryptionService import FileEncryptionService
-from Services.PasswordHashingService import PasswordHashingService
+from Services.PasswordsService import PasswordsService
 from Views.LoginView import LoginView
 from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
 class LoginController:
-    def __init__(self, page: ft.Page, view: LoginView, navigator, comms_manager, file_encryption_service: FileEncryptionService):
+    def __init__(self, page: ft.Page, view: LoginView, navigator, comms_manager, file_encryption_service: FileEncryptionService, passwords_service: PasswordsService):
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager
         self.file_encryption_service = file_encryption_service
+        self.passwords_service = passwords_service
 
         self._upon_text_field_change(page)
         self._attach_handlers(page)
@@ -55,7 +56,7 @@ class LoginController:
             return
 
         username, password = self.view.username.value, self.view.password.value
-        password_hash = PasswordHashingService.hash(password)
+        password_hash = PasswordsService.hash_password(password)
 
         status, response_data = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[username, password_hash])
         if status == "SUCCESS":
@@ -66,7 +67,7 @@ class LoginController:
 
             logging.critical(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
 
-            self.file_encryption_service.derive_and_store_derived_key_from_password(password, salt)
+            self.file_encryption_service.derive_and_store_derived_key_from_password_and_salt(password, salt)
             self.file_encryption_service.store_encrypted_master_key_and_nonce(encrypted_file_master_key, nonce)
 
             self.navigator(ViewsAndRoutesList.HOME)

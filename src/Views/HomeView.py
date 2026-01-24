@@ -5,39 +5,41 @@ from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_light, cry
 
 class HomeView:
     def __init__(self, window_height, window_width):
+        self.destinations = [
+            ft.NavigationRailDestination(
+                label="Files",
+                selected_icon=ft.Icon(ft.Icons.FOLDER, color=crypt_drive_purple),
+                icon=ft.Icon(ft.Icons.FOLDER_OUTLINED, color=crypt_drive_purple)
+            ),
+            ft.NavigationRailDestination(
+                label="Account",
+                selected_icon=ft.Icon(ft.Icons.ACCOUNT_CIRCLE, color=crypt_drive_purple),
+                icon=ft.Icon(ft.Icons.ACCOUNT_CIRCLE_OUTLINED, color=crypt_drive_purple)
+            ),
+            ft.NavigationRailDestination(
+                label="About",
+                selected_icon=ft.Icon(ft.Icons.INFO, color=crypt_drive_purple),
+                icon=ft.Icon(ft.Icons.INFO_OUTLINE, color=crypt_drive_purple)
+            )
+        ]
+
+        self.icon_container = ft.Container(
+            content=ft.Image(
+                src="icon.png",
+                width=100,
+                height=100,
+                fit=ft.ImageFit.FIT_WIDTH,
+            ),
+        )
+
         self.nav_rail = ft.NavigationRail(
             label_type=ft.NavigationRailLabelType.SELECTED,
             min_width=100,
             group_alignment=-1,
             selected_label_text_style=ft.TextStyle(font_family="Aeonik Bold", size=16, color=crypt_drive_blue),
             selected_index=0,
-
-            leading = ft.Container(
-                content=ft.Image(
-                    src="icon.png",
-                    width=100,
-                    height=100,
-                    fit=ft.ImageFit.FIT_WIDTH,
-                ),
-            ),
-
-            destinations=[
-                ft.NavigationRailDestination(
-                    label="Files",
-                    selected_icon=ft.Icon(ft.Icons.FOLDER, color=crypt_drive_purple),
-                    icon=ft.Icon(ft.Icons.FOLDER_OUTLINED, color=crypt_drive_purple)
-                ),
-                ft.NavigationRailDestination(
-                    label="Account",
-                    selected_icon=ft.Icon(ft.Icons.ACCOUNT_CIRCLE, color=crypt_drive_purple),
-                    icon=ft.Icon(ft.Icons.ACCOUNT_CIRCLE_OUTLINED, color=crypt_drive_purple)
-                ),
-                ft.NavigationRailDestination(
-                    label="Settings",
-                    selected_icon=ft.Icon(ft.Icons.SETTINGS, color=crypt_drive_purple),
-                    icon=ft.Icon(ft.Icons.SETTINGS_OUTLINED, color=crypt_drive_purple)
-                )
-            ]
+            leading = self.icon_container,
+            destinations=self.destinations
         )
 
         self.body = ft.Container(
@@ -56,23 +58,24 @@ class HomeView:
         self.home_view_animator = ft.AnimatedSwitcher(
             content=self.loading,
             transition=ft.AnimatedSwitcherTransition.FADE,
-            duration=400,
-            reverse_duration=400,
+            duration=300,
+            reverse_duration=300,
             switch_in_curve=ft.AnimationCurve.EASE_IN,
             switch_out_curve=ft.AnimationCurve.EASE_OUT,
         )
 
 
     def build(self):
-        return ft.View(route="/home",
+        return ft.View(
+                       route="/home",
                        controls=[
                            ft.Row(
-                           controls=[
-                               self.nav_rail,
-                               self.home_view_animator
-                           ],
-                           expand=True
-                            )
+                               controls=[
+                                   self.nav_rail,
+                                   self.home_view_animator
+                               ],
+                               expand=True
+                           )
                        ],
                 )
 

@@ -1,48 +1,42 @@
 import flet as ft
 
+from Dependencies.Constants import crypt_drive_blue_semilight, crypt_drive_purple, crypt_drive_blue, title_size
 from Views.UIElements import FolderTile, FileTile
-from Dependencies.Constants import crypt_drive_blue_semilight, crypt_drive_purple, crypt_drive_blue, crypt_drive_fonts
 
 
 class FileContainer:
-    def __init__(self, page: ft.Page):
-        self.title = ft.Text(value="Your Files", font_family="Aeonik Black", size=90, color=crypt_drive_blue)
-
-        self.loading_ring = ft.Container(
-            content=ft.ProgressRing(color=crypt_drive_purple, height=60, width=60, stroke_width=8, stroke_cap=ft.StrokeCap.ROUND, expand=False),
-            expand=True,
-            alignment=ft.Alignment(0, -1),
-            padding=ft.padding.only(top=10),
-        )
-
-        self.loading = ft.Container(
-            # self.loading_ring,
-            expand=True,
-            alignment=ft.Alignment(0,-1))
+    def __init__(self):
+        self.title = ft.Text(value="Your Files", font_family="Aeonik Black", size=title_size, color=crypt_drive_blue)
 
         self.column = ft.Column(
             controls=[],
             expand=True,
             alignment=ft.MainAxisAlignment.START,
-            horizontal_alignment=ft.CrossAxisAlignment.STRETCH
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+            scroll=True
         )
         self.tiles_column = ft.Column(
             controls=[],
             alignment=ft.MainAxisAlignment.START,
-            scroll=True
+            scroll=False,
+            expand=True
         )
-        self.tiles = ft.Container(self.tiles_column, expand=True, alignment=ft.Alignment(0,-1))
+
+        self.tiles_alignment_container = ft.Container(
+            content=self.tiles_column,
+            alignment=ft.Alignment(0, -1),
+            expand=True,
+            padding=ft.padding.only(bottom=20)
+        )
 
         self.animator = ft.AnimatedSwitcher(
-            content=self.loading,
+            content=ft.Container(),
             transition=ft.AnimatedSwitcherTransition.FADE,
-            duration=500,
-            reverse_duration=500,
+            duration=300,
+            reverse_duration=300,
             switch_in_curve=ft.AnimationCurve.EASE_IN,
             switch_out_curve=ft.AnimationCurve.EASE_OUT,
-            width=page.window.width - 100,
-            height=page.window.height - 170,
-            expand=False,
+            expand=True,
         )
 
         self.current_directory: FolderTile = None
@@ -69,44 +63,3 @@ class FileContainer:
             vertical_alignment=ft.CrossAxisAlignment.START,
             expand_loose=True
         )
-
-
-
-
-    def build(self):
-        return self.column
-
-
-
-def test(page: ft.Page):
-    flc = FileContainer(page)
-    flc.column.width = 900
-    page.fonts = crypt_drive_fonts
-    page.theme_mode = "light"
-    page.add(flc.build())
-
-    flc.current_directory = FolderTile("/", 0, compact_tile=True)
-    flc.subtitle_row.controls.append(flc.current_directory.tile)
-    flc.subtitle_row.controls.append(flc.create_dir_button)
-    flc.subtitle_row.controls.append(flc.upload_file_button)
-    flc.tiles_column.controls.append(flc.subtitle_row)
-    for i in range (10):
-        flc.directories.append(FolderTile(f"/test{i}", i))
-        flc.files.append(FileTile(f"test{i}.txt", i))
-
-    for directory in flc.directories:
-        flc.tiles_column.controls.append(directory.tile)
-
-    for file in flc.files:
-        flc.tiles_column.controls.append(file.tile)
-
-    flc.column.controls.append(flc.title)
-    flc.column.controls.append(flc.animator)
-    page.update()
-    flc.animator.content = flc.tiles
-    flc.animator.update()
-    page.update()
-
-
-if __name__ == "__main__":
-    ft.app(test)
