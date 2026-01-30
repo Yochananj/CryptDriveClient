@@ -108,8 +108,8 @@ class GUI:
         self.page.update()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug(f"{os.path.dirname(__file__)}/assets/window_icon.ico")
+    logging.basicConfig(level=logging.INFO)
+    logging.info(f"{os.path.dirname(__file__)}/assets/window_icon.ico")
     ft.app(GUI, assets_dir="../assets")
 
 

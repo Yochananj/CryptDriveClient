@@ -78,12 +78,3 @@ class HomeView:
                            )
                        ],
                 )
-
-def test(page: ft.Page):
-    page.views.append(
-        HomeView(page.window.height, page.window.width).build()
-    )
-    page.update()
-
-if __name__ == "__main__":
-    ft.app(test)

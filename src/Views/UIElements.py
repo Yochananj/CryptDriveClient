@@ -315,7 +315,7 @@ class FolderPickerAlertDialog:
         self._update_selected_dir(self.current_dir)
 
     def _update_selected_dir(self, directory: FolderTile):
-        logging.debug(f"Selected dir: {directory.__dict__}")
+        logging.info(f"Selected dir: {directory.__dict__}")
         self.selected_dir = directory
         for folder_tile in self.dir_list:
             if folder_tile == self.selected_dir:
@@ -329,17 +329,17 @@ class FolderPickerAlertDialog:
             self.alert.update()
 
     def get_selected_directory_path_for_dialogs(self):
-        logging.debug(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
+        logging.info(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
         if self.selected_dir == self.current_dir:
             trt = self.selected_dir.path if self.selected_dir.path == "/" else self.selected_dir.path[:-1] if self.selected_dir.path[-1] == "/" else self.selected_dir.path
         else:
             trt = self.selected_dir.path + self.selected_dir.name
-        logging.debug(f"TO RETURN STRING: {trt}")
+        logging.info(f"TO RETURN STRING: {trt}")
         return trt
 
     def get_selected_directory_path_for_comms(self):
-        logging.debug(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
+        logging.info(f"RETURNING SELECTED DIR: {self.selected_dir.__dict__}")
         trt = self.selected_dir.path + self.selected_dir.name
-        logging.debug(f"TO RETURN STRING: {trt}")
+        logging.info(f"TO RETURN STRING: {trt}")
         return trt
 

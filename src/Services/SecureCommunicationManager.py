@@ -19,22 +19,22 @@ class SecureCommunicationManager:
         self.is_connected = False
 
     def send_encrypted_message(self, message: bytes, retransmission: bool = False, will_send_data: bool = False) -> bytes:
-        logging.debug(f"Sending encrypted message: {message}")
-        logging.debug(f"Connecting to server...")
+        logging.info(f"Sending encrypted message: {message}")
+        logging.info(f"Connecting to server...")
 
         if not self.is_connected:
             self._connect_to_server()
             self.is_connected = True
 
         if self.needs_key_pair_creation:
-            logging.debug("Creating key pair and getting token...")
+            logging.info("Creating key pair and getting token...")
             self._create_key_pair_and_get_token()
-            logging.debug("Key pair created successfully and token received.")
+            logging.info("Key pair created successfully and token received.")
             self.needs_key_pair_creation = False
 
-        logging.debug("Connected to server successfully.\nWriting encrypted message to send...")
+        logging.info("Connected to server successfully.\nWriting encrypted message to send...")
         encrypted_message = self._write_encrypted_data(message) if not retransmission else message
-        logging.debug(f"Encrypted message written successfully: {encrypted_message}")
+        logging.info(f"Encrypted message written successfully: {encrypted_message}")
         self.sock.sendall(encrypted_message)
         response =  self._receive_response(encrypted_message=encrypted_message)
         if not will_send_data:
@@ -43,7 +43,7 @@ class SecureCommunicationManager:
 
     def send_encrypted_data(self, data: bytes):
         encrypted_data = self._write_encrypted_data(data)
-        logging.debug(f"Encrypted data written successfully: {encrypted_data}\nSending...")
+        logging.info(f"Encrypted data written successfully: {encrypted_data}\nSending...")
         self.sock.sendall(encrypted_data)
         response = self._receive_response(encrypted_message=encrypted_data)
         self.close_connection()
@@ -70,29 +70,29 @@ class SecureCommunicationManager:
         logging.info(f"Connected to: {host_addr}")
 
     def _create_key_pair_and_get_token(self):
-        logging.debug("Initializing Secure Connection")
+        logging.info("Initializing Secure Connection")
 
         private_key = x25519.X25519PrivateKey.generate()
-        logging.debug("Generated Private Key")
+        logging.info("Generated Private Key")
         public_key = private_key.public_key()
-        logging.debug("Generated Public Key")
+        logging.info("Generated Public Key")
         public_key_bytes = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
-        logging.debug(f"Public Key Bytes: {public_key_bytes}")
+        logging.info(f"Public Key Bytes: {public_key_bytes}")
 
         self.sock.sendall(self._write_encrypted_data(message=public_key_bytes, encryption_flag=init_flag, encrypt_message=False))
-        logging.debug("Sent Initialization Flag and Public Key Bytes")
+        logging.info("Sent Initialization Flag and Public Key Bytes")
 
         data_parts = self._receive_data_parts_from_server()
         self.encryption_token, server_public_key_bytes = data_parts[1], data_parts[3]
 
-        logging.debug(f"Received server public key bytes: {server_public_key_bytes}")
+        logging.info(f"Received server public key bytes: {server_public_key_bytes}")
         server_public_key = serialization.load_pem_public_key(server_public_key_bytes)
 
         shared_key = private_key.exchange(server_public_key)
-        logging.debug(f"Shared key: {shared_key.hex()}")
+        logging.info(f"Shared key: {shared_key.hex()}")
 
         derived_key = HKDF(
             algorithm=hashes.SHA256(),
@@ -102,7 +102,7 @@ class SecureCommunicationManager:
         ).derive(shared_key)
 
         self.encryption_key = derived_key
-        logging.debug("Established Shared Key")
+        logging.info("Established Shared Key")
 
     def _write_encrypted_data(self, message: bytes = b"", encryption_flag: bytes = resume_flag, encrypt_message: bool = True) -> bytes:
         if not self.aesgcm and self.encryption_key:
@@ -122,5 +122,5 @@ class SecureCommunicationManager:
                 finished = True
 
         data_parts = data.split(encryption_separator)
-        logging.debug(f"Received encrypted message: {data_parts}")
+        logging.info(f"Received encrypted message: {data_parts}")
         return data_parts

@@ -45,7 +45,7 @@ class LoginController:
         page.update()
 
     def _upon_log_in_click(self, page: ft.Page):
-        logging.debug("Log In clicked")
+        logging.info("Log In clicked")
         if len(self.view.username.value) < 3 or len(self.view.username.value) > 32:
             page.open(error_alert("Username must be between 3 and 32 characters long."))
             page.update()
@@ -72,6 +72,6 @@ class LoginController:
 
             self.navigator(ViewsAndRoutesList.HOME)
         else:
-            logging.debug("Log In failed:")
+            logging.info("Log In failed:")
             page.open(error_alert("Log In Failed: Check Username and Password"))
             page.update()

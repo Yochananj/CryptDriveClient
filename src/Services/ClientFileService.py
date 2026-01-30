@@ -18,9 +18,9 @@ class ClientFileService:
         else:
             file_bytes = file_contents
         with open(os.path.join(path_to_save_to, file_name), "wb") as file:
-            logging.debug(f"Writing file {file_name} to {path_to_save_to} on the disk.")
+            logging.info(f"Writing file {file_name} to {path_to_save_to} on the disk.")
             file.write(file_bytes)
-        logging.debug(f"File {file_name} written to {path_to_save_to} on the disk.")
+        logging.info(f"File {file_name} written to {path_to_save_to} on the disk.")
 
 
     def read_file_from_disk(self, full_file_path):
@@ -34,8 +34,8 @@ class ClientFileService:
         if osv == "Darwin":
             script = 'POSIX path of (choose file with prompt "Select a file")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
-            logging.debug(f"File path picked: {path}")
-            logging.debug(f"Is path Empty? {path == ""}")
+            logging.info(f"File path picked: {path}")
+            logging.info(f"Is path Empty? {path == ""}")
             return path
         elif osv == "Windows":
             ps_command = f"""
@@ -51,7 +51,7 @@ class ClientFileService:
                 text=True,
             ).stdout.strip()
 
-            logging.debug(f"File path picked: {path if not path == "" else "Empty"}")
+            logging.info(f"File path picked: {path if not path == "" else "Empty"}")
             return path
         else:
             raise Exception("Unsupported OS")
@@ -59,13 +59,13 @@ class ClientFileService:
     def save_file_dialog(self, file_name):
         osv = platform.system()
 
-        logging.debug(f"OS: {osv}")
-        logging.debug(f"File name: {file_name}")
+        logging.info(f"OS: {osv}")
+        logging.info(f"File name: {file_name}")
 
         if osv == "Darwin":
             script = f'POSIX path of (choose file name with prompt "Choose where to save `{file_name}` to:" default name "{file_name}")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
-            logging.debug(f"File path picked: {path if path != "" else 'Empty'}")
+            logging.info(f"File path picked: {path if path != "" else 'Empty'}")
             return path
         elif osv == "Windows":
             ps_command = f"""
@@ -83,12 +83,7 @@ class ClientFileService:
                 text=True,
             ).stdout.strip()
 
-            logging.debug(f"File path picked: {path if not path == "" else 'Empty'}")
+            logging.info(f"File path picked: {path if not path == "" else 'Empty'}")
             return path
         else:
             raise Exception("Unsupported OS")
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    cfs = ClientFileService()
-    cfs.save_file_dialog("jorkin depeanits")

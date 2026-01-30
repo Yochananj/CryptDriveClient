@@ -73,8 +73,8 @@ class HomeController:
         self.page.update()
 
     def _mini_navigator(self, control_event=None, force_animation=False):
-        logging.debug(f"Switched to destination: {self.view.nav_rail.selected_index}")
-        logging.debug(f"Control event: {control_event.__dict__ if control_event else 'None'}")
+        logging.info(f"Switched to destination: {self.view.nav_rail.selected_index}")
+        logging.info(f"Control event: {control_event.__dict__ if control_event else 'None'}")
         self.view.home_view_animator.content = self.view.loading
         self.page.add(self.view.home_view_animator)
 
@@ -299,7 +299,7 @@ class HomeController:
         if file is None or file == "": return
         else: file = str(file)
 
-        logging.debug(f"Uploading file: {file}")
+        logging.info(f"Uploading file: {file}")
         file_name = os.path.basename(file)
         file_contents = self.client_file_service.read_file_from_disk(file)
 
@@ -307,11 +307,11 @@ class HomeController:
 
         status, response = self.comms_manager.send_message(Verbs.CREATE_FILE, [self.current_dir, file_name, file_nonce, encrypted_file_contents])
         if status == "SUCCESS":
-            logging.debug("File uploaded successfully")
+            logging.info("File uploaded successfully")
             self._mini_navigator()
             self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} uploaded successfully"))
         else:
-            logging.debug("File upload failed")
+            logging.info("File upload failed")
             self.page.open(error_alert(f"File Upload Failed. Please Try Again. (Error Code: {response})"))
 
     def _rename_file_on_click(self, old_file_name):
@@ -328,9 +328,9 @@ class HomeController:
 
     def _rename_file(self, old_file_name, dialog, file_extension_change_dialog=None, override_file_extension: bool = False):
         new_file_name = dialog.get_text_field_values()[0]
-        logging.debug(f"Current dir: {self.current_dir}")
-        logging.debug(f"Old file name: {old_file_name}")
-        logging.debug(f"New file name: {new_file_name}")
+        logging.info(f"Current dir: {self.current_dir}")
+        logging.info(f"Old file name: {old_file_name}")
+        logging.info(f"New file name: {new_file_name}")
         self.page.close(dialog.alert)
 
         if len(new_file_name) == 0:
@@ -366,11 +366,11 @@ class HomeController:
             data = [self.current_dir, old_file_name, new_file_name]
             status, response = self.comms_manager.send_message(verb=Verbs.RENAME_FILE, data=data)
             if status == "SUCCESS":
-                logging.debug("File renamed successfully")
+                logging.info("File renamed successfully")
                 self._mini_navigator()
                 self.page.open(success_alert(f"File {old_file_name} renamed successfully to {new_file_name}"))
             else:
-                logging.debug("File renaming failed")
+                logging.info("File renaming failed")
                 self.page.open(error_alert(f"File renaming failed. Please Try Again. (Error Code: {response})"))
 
     def _rename_dir_on_click(self, old_dir_name):
@@ -405,11 +405,11 @@ class HomeController:
         data = [self.current_dir, old_dir_name, new_dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.RENAME_DIR, data=data)
         if status == "SUCCESS":
-            logging.debug("Directory renamed successfully")
+            logging.info("Directory renamed successfully")
             self._mini_navigator()
             self.page.open(success_alert(f"Directory {self.current_dir if self.current_dir != "/" else ""}/{old_dir_name} renamed successfully to {self.current_dir if self.current_dir != "/" else ""}/{new_dir_name}"))
         else:
-            logging.debug("Directory renaming failed")
+            logging.info("Directory renaming failed")
             self.page.open(error_alert(f"Directory renaming failed. Please Try Again. (Error Code: {response}"))
 
     def _create_dir_button_on_click(self):
@@ -428,8 +428,8 @@ class HomeController:
         dir_name = dialog.get_text_field_values()[0]
         self.page.close(dialog.alert)
 
-        logging.debug(f"Current dir: {self.current_dir}")
-        logging.debug(f"Dir name: {dir_name}")
+        logging.info(f"Current dir: {self.current_dir}")
+        logging.info(f"Dir name: {dir_name}")
 
         if len(dir_name) == 0:
             self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
@@ -448,11 +448,11 @@ class HomeController:
         data = [self.current_dir, dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.CREATE_DIR, data=data)
         if status == "SUCCESS":
-            logging.debug("Directory created successfully")
+            logging.info("Directory created successfully")
             self._mini_navigator()
             self.page.open(success_alert(f"Directory {self.current_dir if self.current_dir != "/" else ""}/{dir_name} created successfully"))
         else:
-            logging.debug("Directory creation failed")
+            logging.info("Directory creation failed")
             self._mini_navigator()
             self.page.open(error_alert(f"Directory name already taken. Please try again with a different name. (Error Code: {response})"))
 
@@ -469,14 +469,14 @@ class HomeController:
 
     def _delete_file(self, file_name: str, dialog: CancelConfirmAlertDialog):
         self.page.close(dialog.alert)
-        logging.debug(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
+        logging.info(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_FILE, data=[self.current_dir, file_name])
         if status == "SUCCESS":
-            logging.debug(f"File [{self.current_dir}, {file_name}] deleted successfully")
+            logging.info(f"File [{self.current_dir}, {file_name}] deleted successfully")
             self._mini_navigator()
             self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} deleted successfully"))
         else:
-            logging.debug("File deletion failed")
+            logging.info("File deletion failed")
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} Deletion Failed. Please Try Again"))
 
     def _delete_dir_on_click(self, directory: FolderTile):
@@ -492,14 +492,14 @@ class HomeController:
 
     def _delete_dir(self, dir_path, dir_name, dialog):
         self.page.close(dialog.alert)
-        logging.debug(f"Deleting directory: [{dir_path}, {dir_name}]")
+        logging.info(f"Deleting directory: [{dir_path}, {dir_name}]")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_DIR, data=[dir_path, dir_name])
         if status == "SUCCESS":
-            logging.debug(f"Directory [{dir_path}, {dir_name}] deleted successfully")
+            logging.info(f"Directory [{dir_path}, {dir_name}] deleted successfully")
             self._mini_navigator()
             self.page.open(success_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} deleted successfully"))
         else:
-            logging.debug("Directory deletion failed")
+            logging.info("Directory deletion failed")
             self.page.open(error_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
 
     def _download_file_on_click(self, file_name):
@@ -507,32 +507,32 @@ class HomeController:
         status, encrypted_file_bytes_nonce_tuple = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
         encrypted_file_bytes, nonce = encrypted_file_bytes_nonce_tuple
         if status == "SUCCESS":
-            logging.debug("Download successful \n Decrypting file bytes...")
+            logging.info("Download successful \n Decrypting file bytes...")
             file_bytes = self.file_encryption_service.decrypt_file(encrypted_file_bytes, b64decode(nonce))
 
             self.page.window.to_front()
             path_to_save_to = self.client_file_service.save_file_dialog(file_name)
-            logging.debug(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
+            logging.info(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
             if path_to_save_to is None or "":
                 return
 
             self.client_file_service.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
-            logging.debug("File saved successfully")
+            logging.info("File saved successfully")
         else:
-            logging.debug("Download failed")
+            logging.info("Download failed")
             self.page.open(error_alert("Download Failed. Please Try Again"))
 
     def _move_file_on_click(self, file_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
         if current_dialog_path_method is not None:
-            logging.debug("Calling current_dialog_path_method...")
+            logging.info("Calling current_dialog_path_method...")
             current_dialog_path = current_dialog_path_method()
         else:
             current_dialog_path = self.current_dir
-        logging.debug(f"Current dialog path: {current_dialog_path}")
+        logging.info(f"Current dialog path: {current_dialog_path}")
 
         dirs, files = self._get_file_list(current_dialog_path)
         subdirs = [directory["path"] for directory in dirs]
-        logging.debug(f"Subdirs: {subdirs}")
+        logging.info(f"Subdirs: {subdirs}")
 
         dialog = FolderPickerAlertDialog(
             page = self.page,
@@ -554,21 +554,21 @@ class HomeController:
         data = [self.current_dir, new_file_path, file_name]
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_FILE, data=data)
         if status == "SUCCESS":
-            logging.debug(f"File [{self.current_dir}, {file_name}] moved successfully to [{new_file_path}]")
+            logging.info(f"File [{self.current_dir}, {file_name}] moved successfully to [{new_file_path}]")
             self._mini_navigator()
             self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} moved successfully to {new_file_path}"))
             self._change_dir(new_file_path)
         else:
-            logging.debug("File move failed")
+            logging.info("File move failed")
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _move_dir_on_click(self, dir_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
         if current_dialog_path_method is not None:
-            logging.debug("Calling current_dialog_path_method...")
+            logging.info("Calling current_dialog_path_method...")
             current_dialog_path = current_dialog_path_method()
         else:
             current_dialog_path = self.current_dir
-        logging.debug(f"Current dialog path: {current_dialog_path}")
+        logging.info(f"Current dialog path: {current_dialog_path}")
 
         dirs, files = self._get_file_list(current_dialog_path)
         subdirs = []
@@ -577,7 +577,7 @@ class HomeController:
             if sub_dir_path != f"{self.current_dir if self.current_dir != "/" else ""}/{dir_name}":
                 subdirs.append(sub_dir_path)
 
-        logging.debug(f"Subdirs: {subdirs}")
+        logging.info(f"Subdirs: {subdirs}")
 
         dialog = FolderPickerAlertDialog(
             page = self.page,
@@ -598,23 +598,23 @@ class HomeController:
         data = [self.current_dir, new_dir_path, dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_DIR, data=data)
         if status == "SUCCESS":
-            logging.debug(f"File [{self.current_dir}, {dir_name}] moved successfully to [{new_dir_path}]")
+            logging.info(f"File [{self.current_dir}, {dir_name}] moved successfully to [{new_dir_path}]")
             self._mini_navigator()
             self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} and it's contents moved successfully to {new_dir_path}"))
             self._change_dir(new_dir_path)
         else:
-            logging.debug("Folder move failed")
+            logging.info("Folder move failed")
             self.page.open(error_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _get_file_list(self, path):
-        logging.debug("Getting file list")
+        logging.info("Getting file list")
         status, dirs_and_files = self.comms_manager.send_message(verb=Verbs.GET_ITEMS_LIST, data=[path])
 
-        logging.debug(f"status: {status}")
-        logging.debug(f"dirs_and_files: <{dirs_and_files}>, type: {type(dirs_and_files)}")
+        logging.info(f"status: {status}")
+        logging.info(f"dirs_and_files: <{dirs_and_files}>, type: {type(dirs_and_files)}")
 
         dirs, files = json.loads(json.loads(dirs_and_files)["dirs_dumps"]), json.loads(json.loads(dirs_and_files)["files_dumps"])
-        logging.debug(f"dirs: {dirs} \n files: {files}")
+        logging.info(f"dirs: {dirs} \n files: {files}")
         return dirs, files
 
     def _change_username_on_click(self):

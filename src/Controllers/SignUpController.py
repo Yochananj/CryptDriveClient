@@ -47,10 +47,10 @@ class SignUpController:
         page.update()
 
     def _upon_sign_up_click(self, page: ft.Page):
-        logging.debug("Sign Up clicked")
+        logging.info("Sign Up clicked")
 
         if self.view.password.value != self.view.password_confirmation.value:
-            logging.debug("Passwords do not match.")
+            logging.info("Passwords do not match.")
             page.open(error_alert("Password and Password Confirmation must be identical."))
             page.update()
             return
@@ -77,6 +77,6 @@ class SignUpController:
         if status == "SUCCESS":
             self.navigator(ViewsAndRoutesList.HOME)
         else:
-            logging.debug("Log In failed:")
+            logging.info("Log In failed:")
             page.open(error_alert("Sign Up Failed: Username is already taken."))
             page.update()
