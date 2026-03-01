@@ -3,7 +3,6 @@ import os
 import platform
 
 import flet as ft
-from flet.core.types import AppView
 
 from Services.ClientFileService import ClientFileService
 from Services.ClientCommsManager import ClientCommsManager
@@ -23,7 +22,42 @@ from Dependencies.Constants import crypt_drive_fonts, crypt_drive_theme
 
 
 class GUI:
+    """
+    Manages the graphical user interface (GUI) of the CryptDrive application.
+
+    The GUI class is responsible for initializing the main page properties, setting up
+    the theme, fonts, and window properties, and navigating between different views.
+    It serves as the entry point for managing and switching between the different views
+    and controllers in the application.
+
+    :ivar top_view: The currently active view in the application.
+    :type top_view: Optional[ft.UserControl]
+    :ivar controller: The controller associated with the current view.
+    :type controller: Optional[ft.BaseController]
+    :ivar comms_manager: Manages communication with the server.
+    :type comms_manager: ClientCommsManager
+    :ivar file_service: Handles file-related operations.
+    :type file_service: ClientFileService
+    :ivar file_encryption_service: Provides encryption and decryption services for files.
+    :type file_encryption_service: FileEncryptionService
+    :ivar passwords_service: Manages operations related to user passwords.
+    :type passwords_service: PasswordsService
+    :ivar page: Represents the main page of the GUI.
+    :type page: ft.Page
+    """
     def __init__(self, page: ft.Page):
+        """
+        Initializes the main application window and services.
+
+        The class constructor sets up the main application window with specific
+        dimensions, alignment preferences, and styles. It also initializes the
+        required services, such as file management, communication, and encryption
+        services, for the application to function. Additionally, the constructor
+        handles platform-specific settings and navigates to the initial view.
+
+        :param page: The application page object that represents the main window.
+        :type page: ft.Page
+        """
         self.top_view = None
         self.controller = None
         self.comms_manager = ClientCommsManager()
@@ -51,6 +85,21 @@ class GUI:
 
 
     def navigator(self, to_page: ViewsAndRoutesList, username: str = None, password: str = None):
+        """
+        Navigates to the specified view or route within the application's interface. Depending on the
+        destination, it initializes the required page components, updates the display, and creates the
+        appropriate controller to handle user interactions for that view. The navigation process manages
+        situations such as login timeouts and ensures the correct theme and components are displayed for
+        each view.
+
+        :param to_page: The target view or route to navigate to. It must be an instance of the
+            ViewsAndRoutesList enumeration.
+        :param username: Optional; The username to pre-fill fields in views requiring user credentials,
+            such as the login or sign-up pages.
+        :param password: Optional; The password to pre-fill fields in views requiring user credentials,
+            such as the login or sign-up pages.
+        :return: None
+        """
         logging.info(f"Navigating to {to_page}")
         self.page.clean()
 
@@ -108,6 +157,10 @@ class GUI:
         self.page.update()
 
 if __name__ == "__main__":
+    """
+    Runs the application.
+    """
+
     logging.basicConfig(level=logging.INFO)
     logging.info(f"{os.path.dirname(__file__)}/assets/window_icon.ico")
     ft.app(GUI, assets_dir="../assets")

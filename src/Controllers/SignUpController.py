@@ -1,5 +1,4 @@
 import logging
-from os import urandom
 
 import flet as ft
 
@@ -12,7 +11,50 @@ from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
 class SignUpController:
-    def __init__(self, page: ft.Page, view, navigator, comms_manager: ClientCommsManager, file_encryption_service: FileEncryptionService, passwords_service: PasswordsService):
+    """
+    Manages the sign-up process, including handling user input, validating data,
+    and interacting with relevant services for user registration.
+
+    The `SignUpController` class is responsible for orchestrating the sign-up
+    workflow. It attaches handlers to the UI components, validates user input,
+    and communicates with backend services to register a new user. Additionally,
+    it enables navigation to other views as required.
+
+    :ivar view: Interface for accessing and manipulating the view's UI components.
+    :type view: Any
+    :ivar navigator: A callable for navigating between views and routes.
+    :type navigator: Callable
+    :ivar comms_manager: Handles communication with the backend server for user sign-up.
+    :type comms_manager: ClientCommsManager
+    :ivar file_encryption_service: Service for managing encryption-related operations.
+    :type file_encryption_service: FileEncryptionService
+    :ivar passwords_service: Service for password hashing and verification.
+    :type passwords_service: PasswordsService
+    """
+    def __init__(self, page: ft.Page,
+                 view,
+                 navigator,
+                 comms_manager: ClientCommsManager,
+                 file_encryption_service: FileEncryptionService,
+                 passwords_service: PasswordsService
+                 ):
+        """
+        Initializes the class with required services and configurations.
+
+        :param page: Represents the page object for UI interactions.
+        :type page: ft.Page
+        :param view: Encapsulates the view logic and presentation settings.
+        :param navigator: Handles navigation between different app sections.
+        :param comms_manager: Manages client-side communication with external services or
+            backends.
+        :type comms_manager: ClientCommsManager
+        :param file_encryption_service: Provides functionality for file encryption and
+            related cryptographic operations.
+        :type file_encryption_service: FileEncryptionService
+        :param passwords_service: Manages password-related operations, such as storage
+            or validation.
+        :type passwords_service: PasswordsService
+        """
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager
@@ -23,6 +65,16 @@ class SignUpController:
         self._attach_handlers(page)
 
     def _attach_handlers(self, page: ft.Page):
+        """
+        Attach event handlers to various view components.
+
+        This method links UI events to their respective handler functions, ensuring
+        that interactions with interface elements trigger the appropriate behavior.
+
+        :param page: The page object representing the current UI frame and
+            its components for which the event-processing need to be established.
+        :type page: ft.Page
+        """
         self.view.username.on_change = lambda e: self._upon_text_field_change(page)
         self.view.password.on_change = lambda e: self._upon_text_field_change(page)
         self.view.password_confirmation.on_change = lambda e: self._upon_text_field_change(page)
@@ -31,6 +83,15 @@ class SignUpController:
 
 
     def _upon_text_field_change(self, page: ft.Page):
+        """
+        Responds to changes in the text fields of the view and updates the state
+        of the sign-up button. Enables the sign-up button if all required fields
+        (username, password, and password confirmation) are filled; otherwise,
+        disables the button.
+
+        :param page: Represents the current page instance that needs to be updated.
+        :type page: ft.Page
+        """
         if self.view.username.value and self.view.password.value and self.view.password_confirmation.value:
             self.view.sign_up_button.disabled = False
         else:
@@ -39,6 +100,14 @@ class SignUpController:
 
 
     def _upon_switch_to_log_in_click(self, page: ft.Page):
+        """
+        Handles the user action of switching to the log-in view when the relevant
+        button is clicked. Gathers the current username and password input by
+        the user, then navigates to the log-in view with the provided credentials.
+
+        :param page: An instance of `ft.Page` representing the application's current
+            page state. Used for updating the UI after the navigation.
+        """
         current_entry_username = ""
         current_entry_password = ""
         if self.view.username.value: current_entry_username = self.view.username.value
@@ -47,6 +116,18 @@ class SignUpController:
         page.update()
 
     def _upon_sign_up_click(self, page: ft.Page):
+        """
+        Handles the functionality triggered when the "Sign Up" button is clicked.
+
+        The method validates user inputs (i.e., username and password), ensures they
+        meet specific criteria, and performs user registration. It initiates hash
+        generation for the password, encryption credentials creation for secure file
+        handling, and communicates with the server to register the user.
+
+        :param page: The page object for the Sign-Up interface.
+        :type page: ft.Page
+        :return: None
+        """
         logging.info("Sign Up clicked")
 
         if self.view.password.value != self.view.password_confirmation.value:

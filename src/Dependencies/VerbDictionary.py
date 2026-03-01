@@ -1,6 +1,43 @@
 import enum
 
 class Verbs(enum.Enum):
+    """
+    A class representing different types of user actions that can be performed as enumerated values.
+
+    This class is designed as an enumeration for actions such as signing up, logging in, file management
+    (create, delete, rename, move), directory management, and user information updates. Each enumeration
+    value corresponds to a specific action or verb and includes associated parameters as comments for
+    reference, describing the inputs associated with each action.
+
+    :ivar SIGN_UP: Represents the action of signing up a user with credentials and an encrypted file master key.
+    :type SIGN_UP: str
+    :ivar LOG_IN: Represents the action of logging in a user with a username and password hash.
+    :type LOG_IN: str
+    :ivar CREATE_FILE: Represents the action of creating a file, specifying its path, name, and optional contents.
+    :type CREATE_FILE: str
+    :ivar CREATE_DIR: Represents the action of creating a directory at a specified location.
+    :type CREATE_DIR: str
+    :ivar DOWNLOAD_FILE: Represents the action of downloading a file using its file path and name.
+    :type DOWNLOAD_FILE: str
+    :ivar DELETE_FILE: Represents the action of deleting a file, given its path and name.
+    :type DELETE_FILE: str
+    :ivar DELETE_DIR: Represents the action of deleting a directory at a specified path and name.
+    :type DELETE_DIR: str
+    :ivar GET_ITEMS_LIST: Represents the action of retrieving a list of items (files and directories) at a specific path.
+    :type GET_ITEMS_LIST: str
+    :ivar RENAME_FILE: Represents the action of renaming a file at a specific path, specifying the old and new names.
+    :type RENAME_FILE: str
+    :ivar RENAME_DIR: Represents the action of renaming a directory at a specific path, specifying the old and new names.
+    :type RENAME_DIR: str
+    :ivar MOVE_FILE: Represents the action of moving a file from an old to a new path, specifying the file name.
+    :type MOVE_FILE: str
+    :ivar MOVE_DIR: Represents the action of moving a directory from an old to a new path, specifying the directory name.
+    :type MOVE_DIR: str
+    :ivar CHANGE_USERNAME: Represents the action of changing the username for a user.
+    :type CHANGE_USERNAME: str
+    :ivar CHANGE_PASSWORD: Represents the action of changing the password and related security fields for a user.
+    :type CHANGE_PASSWORD: str
+    """
     SIGN_UP = "SIGN_UP" # [username, password_hash, salt, encrypted_file_master_key, nonce]
     LOG_IN = "LOG_IN" # [username, password_hash]
     CREATE_FILE = "CREATE_FILE" # [file_path, file_name, nonce] [file_contents]

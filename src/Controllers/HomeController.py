@@ -22,7 +22,68 @@ from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
 class HomeController:
-    def __init__(self, page: ft.Page, view: HomeView, navigator, comms_manager: ClientCommsManager, client_file_service: ClientFileService, file_encryption_service: FileEncryptionService, passwords_service: PasswordsService, username):
+    """
+    Encapsulates logic to manage and coordinate interactions within the home view of the application.
+    This controller connects the user interface elements with backend services, facilitating navigation,
+    file management, and user account interactions.
+
+    The `HomeController` class serves as the primary handler for the application’s main interface,
+    binding together its visual components and application logic. It manages navigation between
+    different sections such as file management, account settings, and about information, while
+    interacting with services responsible for file encryption, client communications, and
+    user authentication.
+
+    :ivar view: The view component of the home screen, responsible for rendering the UI elements.
+    :type view: HomeView
+    :ivar navigator: Handles navigation logic across the application screens.
+    :type navigator: Any
+    :ivar comms_manager: Manages communication between the client and server.
+    :type comms_manager: ClientCommsManager
+    :ivar file_encryption_service: Service responsible for encrypting and decrypting files.
+    :type file_encryption_service: FileEncryptionService
+    :ivar passwords_service: Provides functions for password-related operations.
+    :type passwords_service: PasswordsService
+    :ivar username: The username of the currently logged-in user.
+    :type username: str
+    :ivar page: Represents the current page being displayed, with UI-related properties and configurations.
+    :type page: ft.Page
+    :ivar container: The current active container, dynamically updated based on navigation.
+    :type container: Any
+    :ivar current_dir: Tracks the currently active directory path in the file container.
+    :type current_dir: str
+    :ivar client_file_service: Client-side service for handling file operations such as uploads and downloads.
+    :type client_file_service: ClientFileService
+    :ivar selected_container: The index of the currently selected container in the navigation rail.
+    :type selected_container: int
+    :ivar file_container: Container responsible for managing and displaying files.
+    :type file_container: FileContainer
+    :ivar account_container: Container managing user account information and interactions.
+    :type account_container: AccountContainer
+    :ivar about_container: Container showing information about the application.
+    :type about_container: AboutContainer
+    """
+    def __init__(self,
+                 page: ft.Page,
+                 view: HomeView,
+                 navigator,
+                 comms_manager: ClientCommsManager,
+                 client_file_service: ClientFileService,
+                 file_encryption_service: FileEncryptionService,
+                 passwords_service: PasswordsService,
+                 username):
+        """
+        Initializes an instance of the HomeController class to manage the page, navigation,
+        file system interactions, and related components in a user interface.
+
+        :param page: The application page that the UI components are rendered on.
+        :param view: The main view associated with the home screen of the application.
+        :param navigator: An object responsible for handling navigation between views.
+        :param comms_manager: Handles communication between the client and the server.
+        :param client_file_service: Manages client-side file operations.
+        :param file_encryption_service: Provides functionalities for file encryption and decryption.
+        :param passwords_service: Supplies password management functionality.
+        :param username: The username of the currently authenticated user.
+        """
         self.view: HomeView = view
         self.navigator = navigator
         self.comms_manager = comms_manager
@@ -51,12 +112,33 @@ class HomeController:
         self._attach_handlers()
 
     def _attach_handlers(self):
+        """
+        Sets up event handlers for various components in the user interface, linking
+        navigation actions and page resizing events to respective handler methods.
+
+        Handlers attached include:
+        - Navigation rail change events to the mini navigator method.
+        - Click events for the root directory navigation.
+        - Page resize events to the resize handler.
+
+        :return: None
+        """
         self.view.nav_rail.on_change = self._mini_navigator
         self._attach_handlers_per_destination()
         self.page.on_resized = lambda e: self._on_resize()
         self.view.nav_rail.destinations[0].on_click = lambda e: self._change_dir("/")
 
     def _on_resize(self):
+        """
+        Handles the resize event to adjust application view dimensions and layout.
+
+        This method dynamically adjusts the dimensions of the application components
+        based on the current window size to ensure proper display and functionality.
+        It also handles specific adjustments depending on the selected index of the
+        navigation rail.
+
+        :return: None
+        """
         self.view.body.height = self.page.window.height
         self.view.body.width = self.page.window.width - 130
 
@@ -73,6 +155,19 @@ class HomeController:
         self.page.update()
 
     def _mini_navigator(self, control_event=None, force_animation=False):
+        """
+        Handles events for navigating between different containers in the application,
+        such as Files, Account, and About. Updates the user interface and animates
+        transitions based on the selected container and any control events.
+        Incorporates animation effects for a smooth user experience during transitions.
+
+        :param control_event: An optional argument representing a triggering event that
+                              can alter the navigation behavior (default: None).
+        :param force_animation: Boolean indicating whether to force animation during
+                                navigation, regardless of whether the selected container
+                                has changed (default: False).
+        :return: None
+        """
         logging.info(f"Switched to destination: {self.view.nav_rail.selected_index}")
         logging.info(f"Control event: {control_event.__dict__ if control_event else 'None'}")
         self.view.home_view_animator.content = self.view.loading
@@ -211,9 +306,9 @@ class HomeController:
 
                 self.selected_container = 1
 
-            case 2:  # Settings container
+            case 2:  # About container
 
-                self.page.title = "CryptDrive: Settings"
+                self.page.title = "CryptDrive: About"
                 self.container: AboutContainer = self.about_container
 
                 self.page.add(self.container.animator)
@@ -253,6 +348,14 @@ class HomeController:
         self.page.update()
 
     def _attach_handlers_per_destination(self):
+        """
+        Assigns specific event handlers to user interface components based on the selected
+        navigation destination. This method dynamically binds actions such as file and directory
+        management in the "Files" container and account-related functionalities in the "Account"
+        container.
+
+        :return: None
+        """
         match self.view.nav_rail.selected_index:
             case 0:  # Files container
 
@@ -290,10 +393,26 @@ class HomeController:
                 pass
 
     def _change_dir(self, path):
+        """
+        Changes the current directory to the specified path and calls the mini
+        navigator functionality.
+
+        :param path: The new directory path to change to.
+        :type path: str
+        :return: None
+        """
         self.current_dir = path
         self._mini_navigator()
 
     def _upload_file_button_on_click(self):
+        """
+        Handles the click event of the upload file button. This method interacts
+        with file services to allow a user to pick a file, encrypt its contents,
+        and upload it to a specified directory on the server. It also handles UI
+        updates and logs the upload process.
+
+        :return: None
+        """
         self.page.window.to_front()
         file = self.client_file_service.file_picker_dialog()
         if file is None or file == "": return
@@ -315,6 +434,14 @@ class HomeController:
             self.page.open(error_alert(f"File Upload Failed. Please Try Again. (Error Code: {response})"))
 
     def _rename_file_on_click(self, old_file_name):
+        """
+        This method creates a dialog box prompting the user to input a new name
+        for the specified file. The dialog includes a confirmation method that
+        triggers the internal file rename operation.
+
+        :param old_file_name: The name of the file to be renamed.
+        :type old_file_name: str
+        """
         dialog = TextFieldAlertDialog(
             page=self.page,
             title="Rename File:",
@@ -327,6 +454,25 @@ class HomeController:
         self.page.open(dialog.alert)
 
     def _rename_file(self, old_file_name, dialog, file_extension_change_dialog=None, override_file_extension: bool = False):
+        """
+        Renames a file by interacting with a dialog interface and handling validations for the new file name.
+
+        This function performs several checks on the new file name such as ensuring it is non-empty, does not contain invalid
+        characters (slashes, pipes), and handles cases where the file extension needs to be modified. It also provides a
+        confirmation dialog if the new file name has a different extension from the old one, ensuring user confirmation for
+        this action. The renaming operation communicates with a backend system to complete the action.
+
+        :param old_file_name: The current name of the file to be renamed.
+        :type old_file_name: str
+        :param dialog: A dialog interface object containing the user input for the new file name.
+        :type dialog: Any
+        :param file_extension_change_dialog: A dialog interface for confirming a change in file extension. Optional.
+        :type file_extension_change_dialog: Any, optional
+        :param override_file_extension: A flag indicating whether to override warnings related to file extension changes.
+            Defaults to False.
+        :type override_file_extension: bool
+        :return: None
+        """
         new_file_name = dialog.get_text_field_values()[0]
         logging.info(f"Current dir: {self.current_dir}")
         logging.info(f"Old file name: {old_file_name}")
@@ -374,6 +520,17 @@ class HomeController:
                 self.page.open(error_alert(f"File renaming failed. Please Try Again. (Error Code: {response})"))
 
     def _rename_dir_on_click(self, old_dir_name):
+        """
+        Triggers the renaming process for a directory when the associated action
+        is performed, such as a button click. It initiates a dialog that allows
+        the user to input a new directory name, validates the input, and confirms
+        the renaming operation.
+
+        :param old_dir_name: The current name of the directory that is to be
+                             renamed.
+        :type old_dir_name: str
+        :return: None
+        """
         dialog = TextFieldAlertDialog(
             page=self.page,
             title="Rename Dir:",
@@ -385,7 +542,21 @@ class HomeController:
         dialog.set_on_confirm_method(lambda e: self._rename_dir(old_dir_name, dialog=dialog))
         self.page.open(dialog.alert)
 
-    def _rename_dir(self, old_dir_name, dialog):
+    def _rename_dir(self, old_dir_name, dialog: TextFieldAlertDialog):
+        """
+        Renames a directory from `old_dir_name` to a new name inputted via the provided
+        dialog. Ensures the new name adheres to specific formatting rules (non-empty,
+        alphanumeric, and no special characters) before proceeding with the renaming
+        process. Displays appropriate alerts for validation errors or operation status.
+
+        :param old_dir_name: The current name of the directory to be renamed.
+        :type old_dir_name: str
+        :param dialog: A dialog object used to capture the new directory name input
+            and display alerts for user feedback.
+        :type dialog: object
+
+        :return: None
+        """
         self.page.close(dialog.alert)
         new_dir_name = dialog.get_text_field_values()[0]
 
@@ -413,6 +584,13 @@ class HomeController:
             self.page.open(error_alert(f"Directory renaming failed. Please Try Again. (Error Code: {response}"))
 
     def _create_dir_button_on_click(self):
+        """
+        Handles the 'create directory' button click event by displaying a dialog
+        to prompt the user for a new directory name. Upon confirmation, it triggers
+        the directory creation process.
+
+        :raise RuntimeError: If the dialog fails to open or set a confirmation method.
+        """
         dialog = TextFieldAlertDialog(
             page=self.page,
             title="Create New Directory:",
@@ -425,6 +603,15 @@ class HomeController:
         self.page.open(dialog.alert)
 
     def _create_dir_confirm_on_click(self, dialog):
+        """
+        Handles the confirmation logic for creating a directory. Validates the directory name for
+        emptiness and invalid characters, communicates with the server to create the directory, and
+        displays appropriate success or error messages based on the operation outcome.
+
+        :param dialog: The dialog object containing the user input for the directory name.
+        :type dialog: Dialog
+        :return: None
+        """
         dir_name = dialog.get_text_field_values()[0]
         self.page.close(dialog.alert)
 
@@ -457,6 +644,15 @@ class HomeController:
             self.page.open(error_alert(f"Directory name already taken. Please try again with a different name. (Error Code: {response})"))
 
     def _delete_file_on_click(self, file_name):
+        """
+        This method displays a confirmation dialog to the user before proceeding with the
+        deletion of the file on which the delete button was clicked. If the user confirms,
+        it invokes the file deletion process internally.
+
+        :param file_name: Name of the file to be deleted.
+        :type file_name: str
+        :return: None
+        """
         dialog = CancelConfirmAlertDialog(
             page=self.page,
             title="Confirm File Deletion",
@@ -468,6 +664,17 @@ class HomeController:
         self.page.open(dialog.alert)
 
     def _delete_file(self, file_name: str, dialog: CancelConfirmAlertDialog):
+        """
+        Deletes a specified file from the current directory and provides user feedback based
+        on the success or failure of the operation. It also updates the UI and logs the
+        operation details.
+
+        :param file_name: Name of the file to be deleted.
+        :type file_name: str
+        :param dialog: An instance of CancelConfirmAlertDialog used to confirm file deletion.
+        :type dialog: CancelConfirmAlertDialog
+        :return: None
+        """
         self.page.close(dialog.alert)
         logging.info(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_FILE, data=[self.current_dir, file_name])
@@ -480,6 +687,16 @@ class HomeController:
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} Deletion Failed. Please Try Again"))
 
     def _delete_dir_on_click(self, directory: FolderTile):
+        """
+        Handles the displaying of a dialog to confirm deletion of a specified directory.
+
+        A confirmation dialog is displayed to the user, asking for confirmation to
+        delete the specified directory. If the user confirms, the method triggers
+        the deletion process for the given directory.
+
+        :param directory: The folder tile representing the directory to be deleted.
+        :type directory: FolderTile
+        """
         dialog = CancelConfirmAlertDialog(
             page=self.page,
             title="Confirm Directory Deletion",
@@ -490,7 +707,23 @@ class HomeController:
         dialog.set_on_confirm_method(lambda e, dp = directory.path, dn = directory.name: self._delete_dir(dp[:-1] if dp.endswith("/") and dp != "/" else dp, dn, dialog))
         self.page.open(dialog.alert)
 
-    def _delete_dir(self, dir_path, dir_name, dialog):
+    def _delete_dir(self, dir_path, dir_name, dialog: CancelConfirmAlertDialog):
+        """
+        Deletes a directory by sending a delete request and handles the response appropriately.
+
+        This function is responsible for interacting with the communication manager to
+        delete a specified directory. It also manages related user interface updates
+        based on the success or failure of the operation.
+
+        :param dir_path: The absolute path of the directory to delete.
+        :type dir_path: str
+        :param dir_name: The name of the directory to delete.
+        :type dir_name: str
+        :param dialog: The dialog object that triggered the operation. Used to handle
+            user notifications or alerts.
+        :type dialog: object
+        :return: None
+        """
         self.page.close(dialog.alert)
         logging.info(f"Deleting directory: [{dir_path}, {dir_name}]")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_DIR, data=[dir_path, dir_name])
@@ -503,6 +736,16 @@ class HomeController:
             self.page.open(error_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
 
     def _download_file_on_click(self, file_name):
+        """
+        Downloads a file from the server when triggered by a click event. This method
+        handles the communication with the server to request the file, decryption of the
+        received file bytes, and saving the file to a specified location on the client's
+        system.
+
+        :param file_name: The name of the file to be downloaded.
+        :type file_name: str
+        :return: None
+        """
         data = [self.current_dir, file_name]
         status, encrypted_file_bytes_nonce_tuple = self.comms_manager.send_message(verb=Verbs.DOWNLOAD_FILE, data=data)
         encrypted_file_bytes, nonce = encrypted_file_bytes_nonce_tuple
@@ -513,7 +756,7 @@ class HomeController:
             self.page.window.to_front()
             path_to_save_to = self.client_file_service.save_file_dialog(file_name)
             logging.info(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
-            if path_to_save_to is None or "":
+            if (path_to_save_to is None) or path_to_save_to == "":
                 return
 
             self.client_file_service.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
@@ -523,6 +766,24 @@ class HomeController:
             self.page.open(error_alert("Download Failed. Please Try Again"))
 
     def _move_file_on_click(self, file_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
+        """
+        Handles the operation of displaying a dialog for the user to choose a new location
+        for a file when a click action is triggered.
+
+        This method facilitates selecting a new location for a file through an interactive
+        folder picker dialog. It updates the current directory path based on the provided
+        method or the internal state and ensures that the corresponding file is moved to the
+        selected directory upon confirmation.
+
+        :param file_name: The name of the file to move.
+        :type file_name: str
+        :param current_dialog_path_method: Optional. A callable that returns the current dialog path.
+        :type current_dialog_path_method: Callable or None
+        :param previous_dialog: Optional. The previous `FolderPickerAlertDialog` instance to be closed
+                                upon opening the new dialog.
+        :type previous_dialog: FolderPickerAlertDialog or None
+        :return: None
+        """
         if current_dialog_path_method is not None:
             logging.info("Calling current_dialog_path_method...")
             current_dialog_path = current_dialog_path_method()
@@ -549,6 +810,21 @@ class HomeController:
             self.page.close(previous_dialog.alert)
 
     def _move_file(self, file_name, new_file_path_method, dialog: FolderPickerAlertDialog):
+        """
+        Handles the process of moving a file from its current location to a specified new
+        location on the server. The operation interacts with a remote communications
+        manager, displays success or failure alerts to the user, and updates the
+        current directory context as required.
+
+        :param file_name: The name of the file to be moved.
+        :type file_name: str
+        :param new_file_path_method: A callable that determines the new file path.
+        :type new_file_path_method: Callable[[], str]
+        :param dialog: An instance of `FolderPickerAlertDialog` used in the file
+                       picking operations.
+        :type dialog: FolderPickerAlertDialog
+        :return: None
+        """
         new_file_path = new_file_path_method()
         self.page.close(dialog.alert)
         data = [self.current_dir, new_file_path, file_name]
@@ -563,6 +839,25 @@ class HomeController:
             self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _move_dir_on_click(self, dir_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
+        """
+        Handles displaying a dialog to allow the user to select a new location for a folder
+        through a user interface for selecting directories.
+
+        This method handles the logic for building a dialog-based UI that allows the user
+        to select a new location for a specified directory. It maintains references to
+        current and previous dialogs to ensure seamless navigation during the folder move
+        operation.
+
+        :param dir_name: Name of the directory to be moved.
+        :type dir_name: str
+        :param current_dialog_path_method: Method reference to retrieve the current dialog's
+            directory path. If None, the method will use the object's current_dir attribute.
+        :type current_dialog_path_method: Callable[[], str] or None
+        :param previous_dialog: Reference to the previous dialog, which is closed if a new
+            dialog is opened. If None, no previous dialog is processed.
+        :type previous_dialog: FolderPickerAlertDialog or None
+        :return: None
+        """
         if current_dialog_path_method is not None:
             logging.info("Calling current_dialog_path_method...")
             current_dialog_path = current_dialog_path_method()
@@ -593,6 +888,20 @@ class HomeController:
             self.page.close(previous_dialog.alert)
 
     def _move_dir(self, dir_name, new_dir_path_method, dialog: FolderPickerAlertDialog):
+        """
+        Moves a directory from the current location to a new location on the server. The target
+        directory is specified by its name, and the new location is determined via a provided method.
+        It communicates with a backend service to perform the operation and handles the
+        response to display appropriate alerts.
+
+        :param dir_name: Name of the directory to be moved.
+        :type dir_name: str
+        :param new_dir_path_method: A callable that determines the new directory path.
+        :type new_dir_path_method: Callable[[], str]
+        :param dialog: The dialog instance used for displaying the folder picker alert.
+        :type dialog: FolderPickerAlertDialog
+        :return: None
+        """
         new_dir_path = new_dir_path_method()
         self.page.close(dialog.alert)
         data = [self.current_dir, new_dir_path, dir_name]
@@ -607,6 +916,15 @@ class HomeController:
             self.page.open(error_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _get_file_list(self, path):
+        """
+        Retrieves the list of directories and files for the given path by communicating with the comms manager.
+        Processes and parses the response to extract and return directories and files information.
+
+        :param path: Path for which the directories and files need to be listed.
+        :type path: str
+        :return: A tuple containing two lists - the first list contains directories and the second list contains files.
+        :rtype: tuple[list[str], list[str]]
+        """
         logging.info("Getting file list")
         status, dirs_and_files = self.comms_manager.send_message(verb=Verbs.GET_ITEMS_LIST, data=[path])
 
@@ -618,6 +936,14 @@ class HomeController:
         return dirs, files
 
     def _change_username_on_click(self):
+        """
+        Handles the process of initiating a username change dialog when triggered by a user action.
+
+        This method creates an instance of a `TextFieldAlertDialog`, which prompts the user to input a
+        new username. Upon confirming, it invokes a defined method to process the username change.
+
+        :return: None
+        """
         dialog = TextFieldAlertDialog(
             page=self.page,
             title="Change Username:",
@@ -630,6 +956,17 @@ class HomeController:
         self.page.open(dialog.alert)
 
     def _change_username(self, get_username_method, dialog):
+        """
+        Changes the username of the user by interacting with the specified dialog and executing the provided
+        method to get the new username. Sends an update request and updates the UI accordingly based
+        on the success or failure of the operation.
+
+        :param get_username_method: A callable that retrieves the new username the user wants to set.
+        :type get_username_method: Callable[[], str]
+        :param dialog: The dialog object that facilitates the user interaction during the operation.
+        :type dialog: Any
+        :return: None
+        """
         username = get_username_method()
         self.page.close(dialog.alert)
         status, response_code = self.comms_manager.send_message(verb=Verbs.CHANGE_USERNAME, data=[username])
@@ -642,6 +979,15 @@ class HomeController:
             self.page.open(error_alert("Username is already taken. Please try again with another username."))
 
     def _change_password_on_click(self):
+        """
+        Handles the logic for opening a dialog to change the user's password. Presents a UI for the user to
+        input their current password, new password, and confirmation of the new password. Configures the
+        dialog to execute the password change logic upon confirmation.
+
+        :param self: Represents the instance of the class holding this method.
+
+        :return: None
+        """
         dialog = TextFieldAlertDialog(
             page=self.page,
             title="Change Password:",
@@ -663,6 +1009,24 @@ class HomeController:
         self.page.open(dialog.alert)
 
     def _change_password(self, get_current_password_method, get_new_password_method, get_confirm_new_password_method, dialog):
+        """
+        Handles the process of changing the user's password, including validation of the current
+        password, confirmation of the new password, ensuring the password meets length
+        requirements, and updating the backend system with the new password.
+
+        :param get_current_password_method: A callable that returns the current password entered
+                                             by the user.
+        :type get_current_password_method: Callable[[], str]
+        :param get_new_password_method: A callable that returns the new password entered by
+                                         the user.
+        :type get_new_password_method: Callable[[], str]
+        :param get_confirm_new_password_method: A callable that returns the password confirmation
+                                                 entered by the user.
+        :type get_confirm_new_password_method: Callable[[], str]
+        :param dialog: The dialog instance that contains the alert to close.
+        :type dialog: Dialog
+        :return: None
+        """
         self.page.close(dialog.alert)
         current_password, new_password, confirm_new_password = get_current_password_method(), get_new_password_method(), get_confirm_new_password_method()
         if not self.passwords_service.verify_password(current_password):
@@ -680,5 +1044,11 @@ class HomeController:
                 self.page.open(error_alert(f"An error occured: {response_code}."))
 
     def _log_out(self):
+        """
+        Logs the user out by invalidating the login token and navigating back to
+        the login screen.
+
+        :return: None
+        """
         self.comms_manager.login_token = 'no_token'
         self.navigator(ViewsAndRoutesList.LOG_IN)

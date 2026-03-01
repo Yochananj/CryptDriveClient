@@ -4,7 +4,34 @@ from Dependencies.Constants import crypt_drive_purple
 
 
 class SignUpView:
+    """
+    Represents the sign-up view of the application.
+
+    This class serves as the user interface for the sign-up functionality, including input fields for
+    username, password, and password confirmation. It also provides action buttons for signing up
+    and switching to the log-in view. The view is designed for alignment and usability, including an
+    app logo for branding purposes.
+
+    :ivar logo: A UI component representing the application logo.
+    :type logo: ft.Row
+    :ivar username: A text field for entering the username.
+    :type username: ft.TextField
+    :ivar password: A text field for entering the password.
+    :type password: ft.TextField
+    :ivar password_confirmation: A text field for confirming the password.
+    :type password_confirmation: ft.TextField
+    :ivar sign_up_button: A button to initiate the sign-up process.
+    :type sign_up_button: ft.ElevatedButton
+    :ivar switch_to_log_in_button: A button to switch to the log-in view.
+    :type switch_to_log_in_button: ft.ElevatedButton
+    """
     def __init__(self, username_start_value: str = "", password_start_value: str = ""):
+        """
+        Initializes the signup form with configurable username and password default values.
+
+        :param username_start_value: Initial value for the username field.
+        :param password_start_value: Initial value for the password field.
+        """
         self.logo = ft.Row(
             controls=[
                 ft.Column(width=30, controls=[ft.Text("")]),
@@ -27,6 +54,16 @@ class SignUpView:
 
 
     def build(self):
+        """
+        Constructs and returns a sign-up page view with a specific route and layout.
+
+        This method builds the user interface for the sign-up page, organizing its
+        elements in a structure composed of rows and columns. The view includes
+        controls for user authentication and navigation.
+
+        :return: A flet View object representing the sign-up page.
+        :rtype: ft.View
+        """
         return ft.View(
             route = "/sign_up",
             controls=[ft.Row(

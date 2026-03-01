@@ -4,6 +4,35 @@ from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_semilight,
 
 
 class AccountContainer:
+    """
+    Represents a UI container for account management functionality.
+
+    This class is responsible for displaying and managing the account details
+    and related actions, including changing the username, changing the password,
+    and logging out. It organizes these elements into structured layouts and
+    provides an animated transition for updates to the UI.
+
+    :ivar title: The title of the account management section.
+    :type title: ft.Text
+    :ivar change_username_button: Button that allows users to request a username change.
+    :type change_username_button: ft.FloatingActionButton
+    :ivar change_password_button: Button that allows users to request a password change.
+    :type change_password_button: ft.FloatingActionButton
+    :ivar log_out_button: Button that allows users to log out of their account.
+    :type log_out_button: ft.FloatingActionButton
+    :ivar buttons: A list containing all account action buttons.
+    :type buttons: list[ft.FloatingActionButton]
+    :ivar username_row: A UI row displaying the current username details.
+    :type username_row: ft.Row
+    :ivar password_row: A UI row displaying the current password details as masked text.
+    :type password_row: ft.Row
+    :ivar account_details: A container that groups and displays account-related information.
+    :type account_details: ft.Container
+    :ivar column: A layout container holding the title, account details, and action buttons.
+    :type column: ft.Column
+    :ivar animator: An animated container for smooth and dynamic UI transitions.
+    :type animator: ft.AnimatedSwitcher
+    """
     def __init__(self, username: str):
         self.title = ft.Text(value="Your Account", font_family="Aeonik Black", size=title_size, color=crypt_drive_blue)
 

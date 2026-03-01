@@ -5,7 +5,41 @@ from Views.UIElements import FolderTile, FileTile
 
 
 class FileContainer:
+    """
+    Represents a container for managing and displaying a collection of files and directories.
+
+    This class is used as a visual and interactive component for managing files and directories
+    within a user interface. It provides attributes for titles, buttons, and container structures
+    to organize and display file and directory elements.
+
+    :ivar title: The title displayed for the file container.
+    :type title: ft.Text
+    :ivar column: The primary column layout holding controls for file management.
+    :type column: ft.Column
+    :ivar tiles_column: The column used to align individual tiles for directories and files.
+    :type tiles_column: ft.Column
+    :ivar tiles_alignment_container: A container responsible for aligning and padding the tiles column.
+    :type tiles_alignment_container: ft.Container
+    :ivar animator: An animated switcher used to transition between different content views.
+    :type animator: ft.AnimatedSwitcher
+    :ivar current_directory: The currently active directory where files and subdirectories are being displayed.
+    :type current_directory: FolderTile
+    :ivar directories: A list of directory tiles representing all subdirectories in the current directory.
+    :type directories: list[FolderTile]
+    :ivar files: A list of file tiles representing all files in the current directory.
+    :type files: list[FileTile]
+    :ivar upload_file_button: A floating action button used for uploading new files.
+    :type upload_file_button: ft.FloatingActionButton
+    :ivar create_dir_button: A floating action button used for creating new directories.
+    :type create_dir_button: ft.FloatingActionButton
+    :ivar subtitle_row: A row layout used to display subtitles or additional controls.
+    :type subtitle_row: ft.Row
+    """
     def __init__(self):
+        """
+        Represents a user interface for managing files and directories, with controls for navigating,
+        uploading files, and creating directories.
+        """
         self.title = ft.Text(value="Your Files", font_family="Aeonik Black", size=title_size, color=crypt_drive_blue)
 
         self.column = ft.Column(

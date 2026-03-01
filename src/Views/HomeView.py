@@ -4,7 +4,43 @@ from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_light, cry
 
 
 class HomeView:
+    """
+    Represents the home view of the application.
+
+    This class is responsible for rendering the home screen's user interface, including
+    navigation rail, main content area, and transitions within the home view. It organizes
+    and manages the layout and visual elements specific to the home view of the application.
+
+    :ivar destinations: Contains the navigation destinations for the navigation rail.
+        Each destination has a label, selected icon, and unselected icon.
+    :type destinations: list[ft.NavigationRailDestination]
+    :ivar icon_container: A container for displaying the application's icon image.
+    :type icon_container: ft.Container
+    :ivar nav_rail: The navigation rail component, which includes navigation destinations,
+        styling, and alignment.
+    :type nav_rail: ft.NavigationRail
+    :ivar body: The main content area container for the home view.
+        This container encompasses the central UI elements.
+    :type body: ft.Container
+    :ivar loading: An empty container serving as a placeholder during transitions or loading states.
+    :type loading: ft.Container
+    :ivar home_view_animator: An animated switcher responsible for managing content transitions
+        within the home view.
+    :type home_view_animator: ft.AnimatedSwitcher
+    """
     def __init__(self, window_height, window_width):
+        """
+        Initializes and configures the user interface components for the application.
+
+        This class sets up the main navigation rail with multiple destinations, a customizable
+        icon container at the top, and a content body. It also includes an animated switcher
+        for seamless transitions between views. The configuration supports flexible window
+        dimensions, ensuring adaptability across different screen sizes, while maintaining
+        aesthetic alignment and spacing.
+
+        :param window_height: Integer value representing the height of the application window.
+        :param window_width: Integer value representing the width of the application window.
+        """
         self.destinations = [
             ft.NavigationRailDestination(
                 label="Files",
@@ -66,6 +102,17 @@ class HomeView:
 
 
     def build(self):
+        """
+        Builds and returns the primary layout view of the application.
+
+        This method constructs and organizes the main user interface elements, including
+        a navigation rail and an animated home view, into a flexible and responsive
+        layout. The elements are arranged within a `Row` control to ensure that they
+        expand properly to fill the allocated space.
+
+        :returns: The top-level view of the application's primary layout.
+        :rtype: View
+        """
         return ft.View(
                        route="/home",
                        controls=[
