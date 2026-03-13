@@ -1,3 +1,11 @@
+"""
+Handles events for navigating between different containers in the application,
+such as Files, Account, and About. Updates the user interface and animates
+transitions based on the selected container and any control events.
+Incorporates animation effects for a smooth user experience during transitions.
+"""
+
+
 import json
 import logging
 import os.path
@@ -447,8 +455,7 @@ class HomeController:
             title="Rename File:",
             title_icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_ROUNDED,
             subtitle=f"Enter the new file name for the file '{old_file_name}':",
-            text_fields=["New File Name:"],
-            modal=False
+            text_fields=["New File Name:"]
         )
         dialog.set_on_confirm_method(lambda e: self._rename_file(old_file_name, dialog=dialog))
         self.page.open(dialog.alert)
@@ -536,8 +543,7 @@ class HomeController:
             title="Rename Dir:",
             title_icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_ROUNDED,
             subtitle=f"Enter the new file name for the file '{old_dir_name}':",
-            text_fields=["New File Name:"],
-            modal=False
+            text_fields=["New File Name:"]
         )
         dialog.set_on_confirm_method(lambda e: self._rename_dir(old_dir_name, dialog=dialog))
         self.page.open(dialog.alert)
@@ -596,8 +602,7 @@ class HomeController:
             title="Create New Directory:",
             title_icon=ft.Icons.CREATE_NEW_FOLDER_ROUNDED,
             subtitle="Enter the name of the new directory:",
-            text_fields=["Directory Name:"],
-            modal=False
+            text_fields=["Directory Name:"]
         )
         dialog.set_on_confirm_method(lambda e: self._create_dir_confirm_on_click(dialog))
         self.page.open(dialog.alert)
@@ -657,8 +662,7 @@ class HomeController:
             page=self.page,
             title="Confirm File Deletion",
             title_icon=ft.Icons.DELETE_ROUNDED,
-            subtitle=f"Are you sure you want to delete the file `{file_name}`?",
-            modal=False
+            subtitle=f"Are you sure you want to delete the file `{file_name}`?"
         )
         dialog.set_on_confirm_method(lambda e, fn=file_name, d=dialog: self._delete_file(fn, d))
         self.page.open(dialog.alert)
@@ -701,8 +705,7 @@ class HomeController:
             page=self.page,
             title="Confirm Directory Deletion",
             title_icon=ft.Icons.DELETE_ROUNDED,
-            subtitle=f"Are you sure you want to delete the directory `{directory.name}`?",
-            modal=False
+            subtitle=f"Are you sure you want to delete the directory `{directory.name}`?"
         )
         dialog.set_on_confirm_method(lambda e, dp = directory.path, dn = directory.name: self._delete_dir(dp[:-1] if dp.endswith("/") and dp != "/" else dp, dn, dialog))
         self.page.open(dialog.alert)
@@ -949,8 +952,7 @@ class HomeController:
             title="Change Username:",
             subtitle="Enter your new username:",
             title_icon=ft.Icons.PERSON_ROUNDED,
-            text_fields=["New Username:"],
-            modal=False,
+            text_fields=["New Username:"]
         )
         dialog.set_on_confirm_method(lambda e, d=dialog: self._change_username(get_username_method=lambda: d.get_text_field_values()[0], dialog=d))
         self.page.open(dialog.alert)
@@ -994,7 +996,6 @@ class HomeController:
             subtitle="Enter your new password:",
             title_icon=ft.Icons.KEY_ROUNDED,
             text_fields=["Current Password:", "New Password:", "Confirm New Password:"],
-            modal=False,
             password_fields=True
         )
         dialog.set_on_confirm_method(

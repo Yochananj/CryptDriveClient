@@ -85,7 +85,7 @@ class HomeView:
             expand=True,
             bgcolor=crypt_drive_blue_light,
             border_radius=10,
-            padding=(ft.padding.only(left=30, right=30, top=0, bottom=0)),
+            padding=(ft.padding.only(left=30, right=30)),
             alignment=ft.Alignment(0,-1),
         )
 

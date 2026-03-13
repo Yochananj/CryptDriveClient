@@ -1,3 +1,19 @@
+"""
+File Encryption Service Module
+
+This module provides cryptographic services for secure file encryption and decryption
+using AES-GCM (Advanced Encryption Standard in Galois/Counter Mode) with Argon2-based
+key derivation. It implements a two-tier encryption system where files are encrypted
+with a master key, and the master key itself is encrypted using a password-derived key.
+
+The module handles:
+- Password-based key derivation using Argon2
+- Master key generation and encryption
+- File encryption and decryption operations
+- Secure credential management and rotation
+"""
+
+
 import logging
 from os import urandom
 
@@ -185,5 +201,5 @@ class FileEncryptionService:
         :return: The decrypted file master key.
         :rtype: bytes
         """
-        logging.critical(f"Decrypting File Master Key: {self.encrypted_master_key}\n Nonce: {self.encrypted_master_key_nonce}\nDerived Key: {self.derived_key}")
+        logging.debug(f"Decrypting File Master Key: {self.encrypted_master_key}\n Nonce: {self.encrypted_master_key_nonce}\nDerived Key: {self.derived_key}")
         return self.derived_key_aesgcm.decrypt(self.encrypted_master_key_nonce, self.encrypted_master_key, None)

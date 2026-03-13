@@ -1,3 +1,13 @@
+"""
+Handles client-server communication tasks including secure messaging, request
+formatting, and token management.
+
+This module provides the ClientCommsManager class that manages the communication
+protocol between the client and server. It encapsulates functionalities such as
+sending requests, processing server responses, and encoding/decoding messages for
+secure transmission.
+"""
+
 import json
 import logging
 from base64 import b64encode

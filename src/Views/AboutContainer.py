@@ -1,3 +1,12 @@
+"""
+Displays versioning and dependency information for the CryptDrive application.
+
+This module provides classes to create UI components specifically tailored for
+displaying detailed version information about the CryptDrive application and
+its dependencies. It is primarily built for use with the Flet framework and
+is designed to display this information dynamically using animated transitions.
+"""
+
 import sys
 
 import argon2

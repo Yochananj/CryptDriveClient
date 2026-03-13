@@ -1,3 +1,13 @@
+"""
+A class-based module for managing files and directories within a user interface.
+
+This module defines a `FileContainer` class that provides a structured way to manage
+and display file and directory structures interactively. It includes support for custom
+layouts, animations, and user interaction controls such as uploading files and creating
+directories. The class serves as a reusable building block for applications that require
+file management functionalities.
+"""
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_blue_semilight, crypt_drive_purple, crypt_drive_blue, title_size

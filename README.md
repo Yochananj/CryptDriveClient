@@ -26,7 +26,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 3. Install dependencies:
 ```shell script
-pip install flet cryptography argon2-cffi
+pip install flet==0.28.3 cryptography argon2-cffi
 ```
 
 

@@ -1,3 +1,11 @@
+"""
+A utility module for cross-platform file operations, including saving files, reading files,
+and interacting with platform-specific file dialogs.
+
+This module provides abstractions to handle file operations seamlessly across different operating
+systems, such as macOS and Windows, while maintaining compatibility and ease of use.
+"""
+
 import logging
 import os
 import platform
@@ -60,7 +68,7 @@ class ClientFileService:
         :rtype: bytes
         """
         with open(full_file_path, "rb") as file:
-            file_contents = file.read(-1)
+            file_contents = file.read()
         return file_contents
 
 

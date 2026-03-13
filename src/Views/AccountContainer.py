@@ -1,3 +1,11 @@
+"""
+A module for creating and managing account-related UI components.
+
+This module defines the AccountContainer class, which organizes and displays
+the UI for account management tasks such as changing usernames, changing passwords,
+and logging out. The module uses animated transitions to improve the user experience.
+"""
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_semilight, crypt_drive_purple, title_size

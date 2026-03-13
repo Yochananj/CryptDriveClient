@@ -538,7 +538,7 @@ class FolderPickerAlertDialog:
             clicked.
         """
 
-        self.current_dir = FolderTile(current_dialog_dir, 0, True, False)
+        self.current_dir = FolderTile(current_dialog_dir, 0, True)
         self.current_dir.tile.disabled = False
         self.dir_list: list[FolderTile] = [self.current_dir]
 
@@ -554,7 +554,6 @@ class FolderPickerAlertDialog:
             title=ft.Column(
                 [ft.Row([ft.Icon(ft.Icons.DRIVE_FILE_MOVE_ROUNDED, color=crypt_drive_purple), ft.Text(title, font_family="Aeonik Bold")]), self.subtitle]
             ),
-            modal=False,
             content=ft.Container(
                 content=ft.Column(
                     controls=rows_list,
