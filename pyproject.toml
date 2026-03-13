@@ -1,31 +1,24 @@
 [project]
 name = "CryptDrive"
 version = "0.1.0"
-description = " An Encrypted Remote File Storage Solution"
+description = "An encrypted remote file storage solution"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+
 authors = [
     { name = "Yochanan Julian", email = "yochananj08@gmail.com" }
 ]
+
 dependencies = [
-  "flet==0.28.3",
-  "cryptography",
-  "argon2-cffi"
+    "flet==0.28.3",
+    "cryptography>=42",
+    "argon2-cffi>=23"
 ]
 
 [tool.flet]
-# org name in reverse domain name notation, e.g. "com.mycompany".
-# Combined with project.name to build bundle ID for iOS and Android apps
-org = "com.CryptDrive"
-
-# project display name that is used as an app title on Android and iOS home screens,
-# shown in window titles and about app dialogs on desktop.
+org = "com.yochananjulian"
 product = "CryptDrive"
-
-# company name to display in about app dialogs
 company = "Amichai Cyber Project"
-
-# copyright text to display in about app dialogs
 copyright = "Copyright (C) 2026 by Yochanan Julian"
 
 [tool.flet.app]
@@ -33,11 +26,5 @@ path = "src"
 
 [tool.uv]
 dev-dependencies = [
-    "flet[all]==0.28.3",
+    "flet[all]==0.28.3"
 ]
-
-[tool.poetry]
-package-mode = false
-
-[tool.poetry.group.dev.dependencies]
-flet = {extras = ["all"], version = "0.28.3"}
