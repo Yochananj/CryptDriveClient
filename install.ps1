@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $VenvDir = Join-Path $ProjectRoot ".venv"
 $MainFile = Join-Path $ProjectRoot "src\main.py"
+$ConstantsFile = Join-Path $ProjectRoot "src\Dependencies\Constants.py"
 
 Write-Host "==> Project root: $ProjectRoot"
 
@@ -52,6 +53,29 @@ if (Test-Path $PyprojectFile) {
 else {
     Write-Error "pyproject.toml not found in project root."
     exit 1
+}
+
+Write-Host ""
+$ServerIP = Read-Host "Enter server IP address (default == localhost): "
+if ([string]::IsNullOrWhiteSpace($ServerIP)) {
+    $ServerIP = "localhost"
+}
+
+if (Test-Path $ConstantsFile) {
+    Write-Host "==> Configuring server address to: $ServerIP"
+    $PythonEscapePath = $ConstantsFile -replace "\\", "\\"
+    python -c "
+import re
+path = r'$PythonEscapePath'
+with open(path, 'r') as f:
+    content = f.read()
+content = re.sub(r'server_address\s*=\s*[\"''].*?[\"'']', f'server_address = \"$ServerIP\"', content)
+with open(path, 'w') as f:
+    f.write(content)
+"
+}
+else {
+    Write-Warning "Constants file not found at $ConstantsFile. Skipping IP configuration."
 }
 
 if (-not (Test-Path $MainFile)) {

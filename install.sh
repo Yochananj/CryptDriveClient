@@ -4,6 +4,7 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="${PROJECT_ROOT}/.venv"
 MAIN_FILE="${PROJECT_ROOT}/src/main.py"
+CONSTANTS_FILE="${PROJECT_ROOT}/src/Dependencies/Constants.py"
 
 echo "==> Project root: ${PROJECT_ROOT}"
 
@@ -37,6 +38,25 @@ if [ -f "${PROJECT_ROOT}/pyproject.toml" ]; then
 else
   echo "Error: pyproject.toml not found in project root."
   exit 1
+fi
+
+echo ""
+read -r -p "Enter server IP address (default == localhost): " SERVER_IP
+SERVER_IP=${SERVER_IP:-localhost}
+
+if [ -f "${CONSTANTS_FILE}" ]; then
+  echo "==> Configuring server address to: ${SERVER_IP}"
+  python -c "
+import re
+path = '${CONSTANTS_FILE}'
+with open(path, 'r') as f:
+    content = f.read()
+content = re.sub(r'server_address\s*=\s*[\"''].*?[\"'']', f'server_address = \"${SERVER_IP}\"', content)
+with open(path, 'w') as f:
+    f.write(content)
+"
+else
+  echo "Warning: Constants file not found at ${CONSTANTS_FILE}. Skipping IP configuration."
 fi
 
 if [ ! -f "${MAIN_FILE}" ]; then
