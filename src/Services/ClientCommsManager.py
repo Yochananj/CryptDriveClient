@@ -117,7 +117,7 @@ class ClientCommsManager:
             else:
                 self.access_token, self.refresh_token = "timed_out", "no_token"
                 self.navigator(ViewsAndRoutesList.LOG_IN)
-        elif token_needs_refreshing == "True":
+        elif (token_needs_refreshing == "True") or (status == "ERROR" and response_code == "INVALID_TOKEN"):
             self.send_message(Verbs.REFRESH_ACCESS_TOKEN, [])
 
         if byte_data:
