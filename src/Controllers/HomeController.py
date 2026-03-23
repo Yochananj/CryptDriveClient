@@ -1038,7 +1038,8 @@ class HomeController:
             self.page.open(error_alert("Password must be between 8 and 64 characters long."))
         else:
             salt, encrypted_file_master_key, nonce = self.file_encryption_service.create_new_encryption_credentials_from_password(new_password)
-            status, response_code = self.comms_manager.send_message(Verbs.CHANGE_PASSWORD, data=[self.passwords_service.hash_password(new_password), salt, encrypted_file_master_key, nonce])
+            data = [self.passwords_service.hash_password(current_password), self.passwords_service.hash_password(new_password), salt, encrypted_file_master_key, nonce]
+            status, response_code = self.comms_manager.send_message(Verbs.CHANGE_PASSWORD, data=data)
             if status == "SUCCESS":
                 self.page.open(success_alert("Password updated successfully."))
             else:

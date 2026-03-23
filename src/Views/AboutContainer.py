@@ -13,7 +13,8 @@ import argon2
 import cryptography
 import flet as ft
 
-from Dependencies.Constants import crypt_drive_blue, title_size, crypt_drive_blue_semilight
+from Dependencies.Constants import crypt_drive_blue, title_size
+from Views.UIElements import AboutLine
 
 
 class AboutContainer:
@@ -93,53 +94,3 @@ class AboutContainer:
             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
         )
 
-
-
-class AboutLine:
-    """
-    Represents a UI component that displays a line with an icon, two text elements,
-    and an optional trailing button.
-
-    This class is designed to create a structured user interface element that combines
-    an icon, two lines of text, and an optional trailing button within a styled container.
-
-    :ivar line: The container that holds the line's components, including the icon, text,
-        and optional trailing button.
-    :type line: ft.Container
-    """
-    def __init__(self, icon: ft.Icons, line_1: str, line_2: str, trailing_button: ft.IconButton = ft.IconButton()):
-        """
-        Initializes an instance of the class with the given parameters for creating a
-        styled row container with an icon, two lines of text, and an optional trailing
-        button. The class configures the container's layout, background color, padding,
-        and border radius.
-
-        :param icon: The icon to display in the container.
-        :type icon: ft.Icons
-        :param line_1: The first line of text to display in the container.
-        :type line_1: str
-        :param line_2: The second line of text to display in the container.
-        :type line_2: str
-        :param trailing_button: An optional trailing button to display in the container.
-        :type trailing_button: ft.IconButton
-        """
-        self.line = ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.Icon(icon),
-                    ft.Column(
-                        controls=[
-                            ft.Text(value=line_1, font_family="Aeonik Bold", size=16),
-                            ft.Text(value=line_2, font_family="Aeonik", size=16)
-                        ],
-                        spacing=2,
-                        expand=True
-                    ),
-                    trailing_button
-                ],
-                expand=True,
-            ),
-            bgcolor=crypt_drive_blue_semilight,
-            border_radius=15,
-            padding=ft.padding.all(13),
-        )
