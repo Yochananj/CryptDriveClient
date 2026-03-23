@@ -833,7 +833,7 @@ class HomeController:
         data = [self.current_dir, new_file_path, file_name]
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_FILE, data=data)
         if status == "SUCCESS":
-            logging.info(f"File [{self.current_dir}, {file_name}] moved successfully to [{new_file_path}]")
+            logging.info(f"File [{file_name}] moved successfully to [{new_file_path}]")
             self._mini_navigator()
             self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} moved successfully to {new_file_path}"))
             self._change_dir(new_file_path)
@@ -931,7 +931,7 @@ class HomeController:
         logging.info("Getting file list")
         status, dirs_and_files = self.comms_manager.send_message(verb=Verbs.GET_ITEMS_LIST, data=[path])
 
-        logging.info(f"status: {status}")
+        logging.info(f"Status: {status}")
         logging.info(f"dirs_and_files: <{dirs_and_files}>, type: {type(dirs_and_files)}")
 
         dirs, files = json.loads(json.loads(dirs_and_files)["dirs_dumps"]), json.loads(json.loads(dirs_and_files)["files_dumps"])
@@ -1052,5 +1052,5 @@ class HomeController:
 
         :return: None
         """
-        self.comms_manager.login_token = 'no_token'
+        self.comms_manager.access_token, self.comms_manager.refresh_token = "no_token", "no_token"
         self.navigator(ViewsAndRoutesList.LOG_IN)

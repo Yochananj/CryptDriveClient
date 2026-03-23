@@ -60,7 +60,7 @@ class GUI:
         """
         self.top_view = None
         self.controller = None
-        self.comms_manager = ClientCommsManager()
+        self.comms_manager = ClientCommsManager(self.navigator)
         self.file_service = ClientFileService()
         self.file_encryption_service = FileEncryptionService()
         self.passwords_service = PasswordsService(self.file_encryption_service)
@@ -106,7 +106,7 @@ class GUI:
         match to_page:
             case ViewsAndRoutesList.LOG_IN:
                 timed_out = False
-                if self.comms_manager.login_token != "no_token": timed_out = True
+                if self.comms_manager.access_token == "timed_out": timed_out = True
 
                 self.page.title = "CryptDrive: Log In"
                 self.page.views.clear()
@@ -122,7 +122,7 @@ class GUI:
                     passwords_service=self.passwords_service
                 )
 
-                if timed_out: self.page.open(error_alert("Your Log In timed out. Please log in again."))
+                if timed_out: self.page.open(error_alert("Your log in timed out. Please log in again."))
             case ViewsAndRoutesList.SIGN_UP:
                 self.page.title = "CryptDrive: Sign Up"
                 self.page.views.clear()
@@ -162,7 +162,6 @@ if __name__ == "__main__":
     """
 
     logging.basicConfig(level=logging.INFO)
-    logging.info(f"{os.path.dirname(__file__)}/assets/window_icon.ico")
     ft.app(GUI, assets_dir="../assets")
 
 

@@ -80,7 +80,7 @@ class SecureCommunicationManager:
 
         logging.info("Connected to server successfully.\nWriting encrypted message to send...")
         encrypted_message = self._write_encrypted_data(message) if not retransmission else message
-        logging.info(f"Encrypted message written successfully: {encrypted_message}")
+        logging.info(f"Encrypted message written successfully: {encrypted_message}\n Sending...")
         self.sock.sendall(encrypted_message)
         response =  self._receive_response(encrypted_message=encrypted_message)
         if not will_send_data:

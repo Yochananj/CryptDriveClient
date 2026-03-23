@@ -15,6 +15,7 @@ from base64 import b64encode
 from Dependencies.Constants import *
 from Dependencies.VerbDictionary import Verbs
 from Services.SecureCommunicationManager import SecureCommunicationManager
+from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
 
 class ClientCommsManager:
@@ -27,20 +28,22 @@ class ClientCommsManager:
     messages to the server, processing server responses, and handling specific
     protocol requirements such as secure connections, data transfer, and encoding.
 
-    :ivar login_token: Authentication token used to authenticate client requests
+    :ivar access_token: Authentication token used to authenticate client requests
         with the server. This token is dynamically updated based on the server
         responses.
-    :type login_token: str
+    :type access_token: str
     :ivar secure_connection_manager: Instance of SecureCommunicationManager used to
         handle encrypted communication and data transfer with the server.
     :type secure_connection_manager: SecureCommunicationManager
     """
-    def __init__(self):
+    def __init__(self, navigator):
         """
         Initializes an instance of the class with default attributes.
         """
-        self.login_token = "no_token"
+        self.access_token = "no_token"
+        self.refresh_token = "no_token"
         self.secure_connection_manager = SecureCommunicationManager()
+        self.navigator = navigator
 
     def send_message(self, verb: Verbs, data: list):
         """
@@ -57,25 +60,25 @@ class ClientCommsManager:
         """
         logging.info("Sending Message")
         logging.info(f"Verb: {verb.value}")
-        message = self._write_message(verb, data if verb != Verbs.CREATE_FILE else data[:-1])
+        message = self._write_message(verb, data if verb != Verbs.CREATE_FILE else data[:-1], refresh_token=(verb==Verbs.REFRESH_ACCESS_TOKEN))
 
         logging.info(f"Sending Message: {message} \n waiting for response... \n")
 
         response = self.secure_connection_manager.send_encrypted_message(message.encode(), will_send_data=(verb == Verbs.CREATE_FILE))
-        status, response_data = self._process_response(response)
+        status, response_data = self._process_response(verb, response)
 
         if response_data == "READY_FOR_DATA":
             logging.info("Sending data")
             str_to_send = data[-1]
             response = self.secure_connection_manager.send_encrypted_data(str_to_send)
             logging.info("Data sent \n waiting for response.")
-            status,response_data = self._process_response(response)
+            status,response_data = self._process_response(verb, response)
         elif verb == Verbs.CREATE_FILE:
             self.secure_connection_manager.close_connection()
 
         return status, response_data
 
-    def _process_response(self, response: bytes):
+    def _process_response(self, verb, response: bytes):
         """
         Processes the received response and extracts meaningful data based on specific flags and separators.
 
@@ -99,14 +102,23 @@ class ClientCommsManager:
             response = response.decode()
 
         response_parts = response.split(separator)
-        status = response_parts[0]
-
+        status, token_needs_refreshing = response_parts[0:2]
         logging.info(f"Status: {status}")
 
-        self.login_token = response_parts[1]
-        logging.info(f"Saved Token: {self.login_token}")
-
         response_code = response_parts[2] if len(response_parts) > 2 else ""
+
+        if verb == Verbs.SIGN_UP or verb == Verbs.LOG_IN:
+            self.access_token = json.loads(response_code)["access_token"]
+            self.refresh_token = json.loads(response_code)["refresh_token"]
+
+        if verb == Verbs.REFRESH_ACCESS_TOKEN:
+            if status == "SUCCESS":
+                self.access_token = response_code
+            else:
+                self.access_token, self.refresh_token = "timed_out", "no_token"
+                self.navigator(ViewsAndRoutesList.LOG_IN)
+        elif token_needs_refreshing == "True":
+            self.send_message(Verbs.REFRESH_ACCESS_TOKEN, [])
 
         if byte_data:
             return status, (byte_data, response_code)
@@ -115,7 +127,7 @@ class ClientCommsManager:
         else:
             return status, response_code
 
-    def _write_message(self, verb: Verbs, data_parts: list):
+    def _write_message(self, verb: Verbs, data_parts: list, refresh_token=False):
         """
         Writes and encodes a message using a given verb and list of data parts. Ensures that each
         data part is appropriately encoded based on its type. Encoded messages are logged for
@@ -140,6 +152,7 @@ class ClientCommsManager:
                 decoded_parts.append((part, "str"))
             else:
                 decoded_parts.append((b64encode(part).decode(), "bytes"))
-        message = verb.value + separator + self.login_token + separator + json.dumps(decoded_parts)
+        token = self.refresh_token if refresh_token else self.access_token
+        message = verb.value + separator + token + separator + json.dumps(decoded_parts)
         logging.info(f"Final Message: {message}")
         return message
