@@ -1,4 +1,16 @@
-import hashlib
+"""
+Provides password-related services, including verification and hashing.
+
+This module facilitates secure password management by leveraging Argon2
+for hashing and hmac for constant-time comparison. It integrates with
+an external file encryption service to retrieve necessary cryptographic
+keys and parameters for password verification and handling.
+
+Classes:
+    PasswordsService: Handles password verification and hashing functionalities.
+"""
+
+import hmac
 
 from argon2.low_level import hash_secret_raw, Type
 
@@ -41,7 +53,8 @@ class PasswordsService:
             ``False`` otherwise.
         :rtype: bool
         """
-        return hash_secret_raw(
+        return hmac.compare_digest(
+            hash_secret_raw(
             secret=password.encode(),
             salt=self.fes.salt,
             time_cost=3,
@@ -49,18 +62,6 @@ class PasswordsService:
             parallelism=4,
             hash_len=32,
             type=Type.ID
-        ) == self.fes.derived_key
-
-    @staticmethod
-    def hash_password(password: str) -> str:
-        """
-        Hashes the given plain-text password using the SHA-256 algorithm and returns the generated hash.
-
-        This method provides a secure, one-way hash for password verification or storage purposes. It
-        transforms the input password string into a fixed-length hash string by utilizing the SHA-256
-        algorithm from the hashlib module.
-
-        :param password: The plain-text password to be hashed.
-        :return: The resulting SHA-256 hash of the given password.
-        """
-        return hashlib.sha256(password.encode()).hexdigest()
+            ),
+            self.fes.derived_key
+        )

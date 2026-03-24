@@ -1,3 +1,14 @@
+"""
+Handles user login and authentication operations along with related UI interactions.
+
+This module manages user login processes, including input validation, interaction with
+the communication manager for authentication, and secure handling of encryption keys.
+It bridges the UI components from the LoginView with backend login functionality, ensuring
+user inputs are validated and appropriate navigation actions are taken based on login success
+or failure.
+"""
+
+
 import json
 import logging
 from base64 import b64decode
@@ -124,26 +135,32 @@ class LoginController:
         :return: None
         """
         logging.info("Log In clicked")
-        if len(self.view.username.value) < 3 or len(self.view.username.value) > 32:
+
+        username, password = self.view.username.value.lower().strip(), self.view.password.value
+
+        if " " in username:
+            page.open(error_alert("Username cannot contain spaces."))
+            page.update()
+            return
+
+        if len(username) < 3 or len(username) > 32:
             page.open(error_alert("Username must be between 3 and 32 characters long."))
             page.update()
             return
-        if len(self.view.password.value) < 8 or len(self.view.password.value) > 64:
+        if len(password) < 8 or len(password) > 64:
             page.open(error_alert("Password must be between 8 and 64 characters long."))
             page.update()
             return
 
-        username, password = self.view.username.value, self.view.password.value
-        password_hash = PasswordsService.hash_password(password)
 
-        status, response_data = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[username, password_hash])
+        status, response_data = self.comms_manager.send_message(verb=Verbs.LOG_IN, data=[username, password])
         if status == "SUCCESS":
             user_data = json.loads(response_data)
             salt = b64decode(user_data["salt"].encode())
             encrypted_file_master_key = b64decode(user_data["encrypted_file_master_key"].encode())
             nonce = b64decode(user_data["nonce"].encode())
 
-            logging.critical(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
+            logging.info(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
 
             self.file_encryption_service.derive_and_store_derived_key_from_password_and_salt(password, salt)
             self.file_encryption_service.store_encrypted_master_key_and_nonce(encrypted_file_master_key, nonce)

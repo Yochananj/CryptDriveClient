@@ -15,16 +15,15 @@ import subprocess
 
 class ClientFileService:
     """
-    Provides functionalities for interacting with files, including saving to disk, reading from disk, and
-    selecting file paths via platform-specific dialogs.
+    Manages file operations such as reading, writing, and interacting with file system dialogs.
 
-    This class allows seamless handling of file operations while abstracting platform-specific behaviors
-    such as file picker or file save dialogs, enabling cross-platform compatibility.
+    Provides utilities for saving files to disk, reading files from disk, and handling file
+    selection or save dialogs in a platform-specific manner. It ensures that directories
+    exist before saving and translates platform-specific behaviors for consistent functionality.
     """
-    def __init__(self):
-        pass
 
-    def save_file_to_disk(self, path_to_save_to, file_name, file_contents):
+    @staticmethod
+    def save_file_to_disk(path_to_save_to, file_name, file_contents):
         """
         Saves a file to a specified directory on the disk. If the specified directory
         does not exist, it will be created. The file contents can either be provided
@@ -54,8 +53,8 @@ class ClientFileService:
             file.write(file_bytes)
         logging.info(f"File {file_name} written to {path_to_save_to} on the disk.")
 
-
-    def read_file_from_disk(self, full_file_path):
+    @staticmethod
+    def read_file_from_disk(full_file_path):
         """
         Reads the content of a file from the disk in binary mode.
 
@@ -71,8 +70,8 @@ class ClientFileService:
             file_contents = file.read()
         return file_contents
 
-
-    def file_picker_dialog(self):
+    @staticmethod
+    def file_picker_dialog():
         """
         Prompts the user to select a file via a file picker dialog appropriate for the operating system
         and returns the selected file's path. The method handles macOS and Windows-specific logic for
@@ -111,7 +110,8 @@ class ClientFileService:
         else:
             raise Exception("Unsupported OS")
 
-    def save_file_dialog(self, file_name):
+    @staticmethod
+    def save_file_dialog(file_name):
         """
         Prompts the user with a save file dialog box specific to their operating system and
         returns the file path selected by the user.

@@ -1,24 +1,28 @@
+"""
+Manages the graphical user interface (GUI) and app execution entry point for
+the CryptDrive application.
+
+This module initializes the application, sets up the main GUI framework with
+themes, navigation, and services, and launches the application.
+"""
+
 import logging
-import os
 import platform
 
 import flet as ft
 
-from Services.ClientFileService import ClientFileService
-from Services.ClientCommsManager import ClientCommsManager
-
 from Controllers.HomeController import HomeController
 from Controllers.LoginController import LoginController
 from Controllers.SignUpController import SignUpController
+from Dependencies.Constants import crypt_drive_fonts, crypt_drive_theme
+from Services.ClientCommsManager import ClientCommsManager
 from Services.FileEncryptionService import FileEncryptionService
 from Services.PasswordsService import PasswordsService
-
-from Views.UIElements import error_alert
 from Views.HomeView import HomeView
 from Views.LoginView import LoginView
 from Views.SignUpView import SignUpView
+from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
-from Dependencies.Constants import crypt_drive_fonts, crypt_drive_theme
 
 
 class GUI:
@@ -36,8 +40,6 @@ class GUI:
     :type controller: Optional[ft.BaseController]
     :ivar comms_manager: Manages communication with the server.
     :type comms_manager: ClientCommsManager
-    :ivar file_service: Handles file-related operations.
-    :type file_service: ClientFileService
     :ivar file_encryption_service: Provides encryption and decryption services for files.
     :type file_encryption_service: FileEncryptionService
     :ivar passwords_service: Manages operations related to user passwords.
@@ -61,7 +63,6 @@ class GUI:
         self.top_view = None
         self.controller = None
         self.comms_manager = ClientCommsManager(self.navigator)
-        self.file_service = ClientFileService()
         self.file_encryption_service = FileEncryptionService()
         self.passwords_service = PasswordsService(self.file_encryption_service)
 
@@ -148,7 +149,6 @@ class GUI:
                     view=self.top_view,
                     navigator=self.navigator,
                     comms_manager=self.comms_manager,
-                    client_file_service=self.file_service,
                     file_encryption_service=self.file_encryption_service,
                     username=self.controller.view.username.value,
                     passwords_service=self.passwords_service

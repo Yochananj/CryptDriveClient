@@ -1,3 +1,9 @@
+"""
+Manages the user registration process, including validation, service interaction,
+and navigation logic.
+"""
+
+
 import logging
 
 import flet as ft
@@ -130,31 +136,35 @@ class SignUpController:
         """
         logging.info("Sign Up clicked")
 
-        if self.view.password.value != self.view.password_confirmation.value:
+        username, password = self.view.username.value, self.view.password.value
+
+        if password != self.view.password_confirmation.value:
             logging.info("Passwords do not match.")
             page.open(error_alert("Password and Password Confirmation must be identical."))
             page.update()
             return
 
-        if len(self.view.username.value) < 3 or len(self.view.username.value) > 32:
+        if " " in username:
+            page.open(error_alert("Username cannot contain spaces."))
+            page.update()
+            return
+
+        if len(username) < 3 or len(username) > 32:
             page.open(error_alert("Username must be between 3 and 32 characters long."))
             page.update()
             return
 
-        if len(self.view.password.value) < 8 or len(self.view.password.value) > 64:
+        if len(password) < 8 or len(password) > 64:
             page.open(error_alert("Password must be between 8 and 64 characters long."))
             page.update()
             return
 
-        username, password = self.view.username.value, self.view.password.value
-
-        password_hash = PasswordsService.hash_password(password)
 
         salt, encrypted_file_master_key, nonce = self.file_encryption_service.create_new_encryption_credentials_from_password(password, new_file_master_key=True)
 
         logging.critical(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
 
-        status, response_data = self.comms_manager.send_message(Verbs.SIGN_UP, [username, password_hash, salt, encrypted_file_master_key, nonce])
+        status, response_data = self.comms_manager.send_message(Verbs.SIGN_UP, [username, password, salt, encrypted_file_master_key, nonce])
         if status == "SUCCESS":
             self.navigator(ViewsAndRoutesList.HOME)
         else:

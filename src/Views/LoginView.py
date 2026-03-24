@@ -1,3 +1,13 @@
+"""
+Provides the implementation of a login view in the application.
+
+This module defines the `LoginView` class, which is responsible for constructing
+a user interface for logging into the application. It includes input fields for
+username and password, along with buttons for performing login actions or
+switching to the sign-up view.
+"""
+
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_purple

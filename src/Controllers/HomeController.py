@@ -59,8 +59,6 @@ class HomeController:
     :type container: Any
     :ivar current_dir: Tracks the currently active directory path in the file container.
     :type current_dir: str
-    :ivar client_file_service: Client-side service for handling file operations such as uploads and downloads.
-    :type client_file_service: ClientFileService
     :ivar selected_container: The index of the currently selected container in the navigation rail.
     :type selected_container: int
     :ivar file_container: Container responsible for managing and displaying files.
@@ -75,7 +73,6 @@ class HomeController:
                  view: HomeView,
                  navigator,
                  comms_manager: ClientCommsManager,
-                 client_file_service: ClientFileService,
                  file_encryption_service: FileEncryptionService,
                  passwords_service: PasswordsService,
                  username):
@@ -87,7 +84,6 @@ class HomeController:
         :param view: The main view associated with the home screen of the application.
         :param navigator: An object responsible for handling navigation between views.
         :param comms_manager: Handles communication between the client and the server.
-        :param client_file_service: Manages client-side file operations.
         :param file_encryption_service: Provides functionalities for file encryption and decryption.
         :param passwords_service: Supplies password management functionality.
         :param username: The username of the currently authenticated user.
@@ -104,7 +100,6 @@ class HomeController:
         self.page.scroll = True
         self.container = None
         self.current_dir = "/"
-        self.client_file_service: ClientFileService = client_file_service
 
         self.selected_container: int = 0
 
@@ -422,13 +417,13 @@ class HomeController:
         :return: None
         """
         self.page.window.to_front()
-        file = self.client_file_service.file_picker_dialog()
+        file = ClientFileService.file_picker_dialog()
         if file is None or file == "": return
         else: file = str(file)
 
         logging.info(f"Uploading file: {file}")
         file_name = os.path.basename(file)
-        file_contents = self.client_file_service.read_file_from_disk(file)
+        file_contents = ClientFileService.read_file_from_disk(file)
 
         encrypted_file_contents, file_nonce = self.file_encryption_service.encrypt_file(file_contents)
 
@@ -757,12 +752,12 @@ class HomeController:
             file_bytes = self.file_encryption_service.decrypt_file(encrypted_file_bytes, b64decode(nonce))
 
             self.page.window.to_front()
-            path_to_save_to = self.client_file_service.save_file_dialog(file_name)
+            path_to_save_to = ClientFileService.save_file_dialog(file_name)
             logging.info(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
             if (path_to_save_to is None) or path_to_save_to == "":
                 return
 
-            self.client_file_service.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
+            ClientFileService.save_file_to_disk(os.path.dirname(path_to_save_to), os.path.basename(path_to_save_to), file_bytes)
             logging.info("File saved successfully")
         else:
             logging.info("Download failed")
@@ -1038,7 +1033,7 @@ class HomeController:
             self.page.open(error_alert("Password must be between 8 and 64 characters long."))
         else:
             salt, encrypted_file_master_key, nonce = self.file_encryption_service.create_new_encryption_credentials_from_password(new_password)
-            data = [self.passwords_service.hash_password(current_password), self.passwords_service.hash_password(new_password), salt, encrypted_file_master_key, nonce]
+            data = [current_password, new_password, salt, encrypted_file_master_key, nonce]
             status, response_code = self.comms_manager.send_message(Verbs.CHANGE_PASSWORD, data=data)
             if status == "SUCCESS":
                 self.page.open(success_alert("Password updated successfully."))

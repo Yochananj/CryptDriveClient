@@ -1,3 +1,12 @@
+"""
+Provides the HomeView class for managing the home screen layout and UI of the application.
+
+This module defines the HomeView class, which is responsible for setting up the
+navigation rail, central content body, and animated transitions for the primary
+view of the application.
+"""
+
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_blue, crypt_drive_blue_light, crypt_drive_purple

@@ -1,3 +1,14 @@
+"""
+Defines the user interface for the sign-up page.
+
+This module provides the SignUpView class, which encapsulates the sign-up
+page's structure, components, and behavior, allowing users to create an
+account by entering their details. The interface includes a logo, input
+fields for credentials, and buttons for actions such as signing up or
+navigating to the log-in page.
+"""
+
+
 import flet as ft
 
 from Dependencies.Constants import crypt_drive_purple

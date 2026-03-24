@@ -1,3 +1,12 @@
+"""
+Enumeration representing various views and routes.
+
+This class is a specialized enumeration that defines a set of constants
+representing the names of commonly used views and routes within an
+application. This can help maintain consistency in navigation and
+route management.
+"""
+
 import enum
 
 class ViewsAndRoutesList(enum.Enum):
