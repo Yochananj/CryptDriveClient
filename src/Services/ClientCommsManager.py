@@ -111,7 +111,7 @@ class ClientCommsManager:
             self.access_token = json.loads(response_code)["access_token"]
             self.refresh_token = json.loads(response_code)["refresh_token"]
 
-        if verb == Verbs.REFRESH_ACCESS_TOKEN:
+        if verb == Verbs.REFRESH_ACCESS_TOKEN or verb == Verbs.CHANGE_USERNAME:
             if status == "SUCCESS":
                 self.access_token = response_code
             else:

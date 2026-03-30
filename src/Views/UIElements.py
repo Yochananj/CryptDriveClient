@@ -319,7 +319,7 @@ class TextFieldAlertDialog:
             subtitle: str,
             text_fields: list[str],
             modal: bool = False,
-            password_fields: bool = False
+            password_fields: list[bool] = False,
             ):
         """
         Initializes the class and creates an alert dialog for user input, with configurable
@@ -342,7 +342,13 @@ class TextFieldAlertDialog:
         )
 
         for i in range(len(text_fields)):
-            self.text_fields.controls.append(ft.TextField(label=text_fields[i], password=password_fields, can_reveal_password=True))
+            self.text_fields.controls.append(
+                ft.TextField(
+                    label=text_fields[i],
+                    password=password_fields if password_fields == False else password_fields[i],
+                    can_reveal_password=True
+                )
+            )
 
         self.content = ft.Container(
             content=

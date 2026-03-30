@@ -947,33 +947,39 @@ class HomeController:
             title="Change Username:",
             subtitle="Enter your new username:",
             title_icon=ft.Icons.PERSON_ROUNDED,
-            text_fields=["New Username:"]
+            text_fields=["New Username:", "Password:"],
+            password_fields=[False, True],
         )
-        dialog.set_on_confirm_method(lambda e, d=dialog: self._change_username(get_username_method=lambda: d.get_text_field_values()[0], dialog=d))
+        dialog.set_on_confirm_method(lambda e, d=dialog: self._change_username(
+            get_values_method=lambda: d.get_text_field_values(), dialog=d))
         self.page.open(dialog.alert)
 
-    def _change_username(self, get_username_method, dialog):
+    def _change_username(self, get_values_method, dialog):
         """
         Changes the username of the user by interacting with the specified dialog and executing the provided
         method to get the new username. Sends an update request and updates the UI accordingly based
         on the success or failure of the operation.
 
-        :param get_username_method: A callable that retrieves the new username the user wants to set.
-        :type get_username_method: Callable[[], str]
+        :param get_values_method: A callable that retrieves the values in the text fields including the
+        new username the user wants to set and his current password.
+        :type get_values_method: Callable[[], str]
         :param dialog: The dialog object that facilitates the user interaction during the operation.
         :type dialog: Any
         :return: None
         """
-        username = get_username_method()
         self.page.close(dialog.alert)
-        status, response_code = self.comms_manager.send_message(verb=Verbs.CHANGE_USERNAME, data=[username])
-        if status == "SUCCESS":
-            self.username = username
-            self.account_container = AccountContainer(username=self.username)
-            self._mini_navigator(force_animation=True)
-            self.page.open(success_alert("Username updated successfully."))
+        username, password = get_values_method()
+        if self.passwords_service.verify_password(password):
+            status, response_code = self.comms_manager.send_message(verb=Verbs.CHANGE_USERNAME, data=[username, password])
+            if status == "SUCCESS":
+                self.username = username
+                self.account_container = AccountContainer(username=self.username)
+                self._mini_navigator(force_animation=True)
+                self.page.open(success_alert("Username updated successfully."))
+            else:
+                self.page.open(error_alert("Username is already taken. Please try again with another username."))
         else:
-            self.page.open(error_alert("Username is already taken. Please try again with another username."))
+            self.page.open(error_alert("The Password you entered is incorrect. Please try again."))
 
     def _change_password_on_click(self):
         """
@@ -991,7 +997,7 @@ class HomeController:
             subtitle="Enter your new password:",
             title_icon=ft.Icons.KEY_ROUNDED,
             text_fields=["Current Password:", "New Password:", "Confirm New Password:"],
-            password_fields=True
+            password_fields=[True, True, True],
         )
         dialog.set_on_confirm_method(
             lambda e, d=dialog:

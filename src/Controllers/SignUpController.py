@@ -162,7 +162,7 @@ class SignUpController:
 
         salt, encrypted_file_master_key, nonce = self.file_encryption_service.create_new_encryption_credentials_from_password(password, new_file_master_key=True)
 
-        logging.critical(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
+        logging.info(f"Salt: {salt} \n Encrypted File Master Key: {encrypted_file_master_key} \n Nonce: {nonce}")
 
         status, response_data = self.comms_manager.send_message(Verbs.SIGN_UP, [username, password, salt, encrypted_file_master_key, nonce])
         if status == "SUCCESS":
