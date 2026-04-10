@@ -136,7 +136,7 @@ class SignUpController:
         """
         logging.info("Sign Up clicked")
 
-        username, password = self.view.username.value, self.view.password.value
+        username, password = self.view.username.value.lower().strip(), self.view.password.value
 
         if password != self.view.password_confirmation.value:
             logging.info("Passwords do not match.")

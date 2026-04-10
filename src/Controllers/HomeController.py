@@ -969,7 +969,16 @@ class HomeController:
         """
         self.page.close(dialog.alert)
         username, password = get_values_method()
-        if self.passwords_service.verify_password(password):
+        username = username.lower().strip()
+        if " " in username:
+            self.page.open(error_alert("Username cannot contain spaces."))
+            return
+
+        elif len(username) < 3 or len(username) > 32:
+            self.page.open(error_alert("Username must be between 3 and 32 characters long."))
+            return
+
+        elif self.passwords_service.verify_password(password):
             status, response_code = self.comms_manager.send_message(verb=Verbs.CHANGE_USERNAME, data=[username, password])
             if status == "SUCCESS":
                 self.username = username
