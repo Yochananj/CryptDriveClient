@@ -535,10 +535,10 @@ class HomeController:
         """
         dialog = TextFieldAlertDialog(
             page=self.page,
-            title="Rename Dir:",
+            title="Rename Folder:",
             title_icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_ROUNDED,
-            subtitle=f"Enter the new file name for the file '{old_dir_name}':",
-            text_fields=["New File Name:"]
+            subtitle=f"Enter the new file name for the folder '{old_dir_name}':",
+            text_fields=["New Folder Name:"]
         )
         dialog.set_on_confirm_method(lambda e: self._rename_dir(old_dir_name, dialog=dialog))
         self.page.open(dialog.alert)
@@ -562,7 +562,7 @@ class HomeController:
         new_dir_name = dialog.get_text_field_values()[0]
 
         if len(new_dir_name) == 0:
-            self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
+            self.page.open(error_alert("Folder Name cannot be empty. Please try again with a different name."))
             return
 
         is_name_invalid = False
@@ -571,18 +571,18 @@ class HomeController:
                 is_name_invalid = True
 
         if is_name_invalid:
-            self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
+            self.page.open(error_alert("Folder Name cannot contain special characters. Please try again with a different name."))
             return
 
         data = [self.current_dir, old_dir_name, new_dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.RENAME_DIR, data=data)
         if status == "SUCCESS":
-            logging.info("Directory renamed successfully")
+            logging.info("Folder renamed successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"Directory {self.current_dir if self.current_dir != "/" else ""}/{old_dir_name} renamed successfully to {self.current_dir if self.current_dir != "/" else ""}/{new_dir_name}"))
+            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{old_dir_name} renamed successfully to {self.current_dir if self.current_dir != "/" else ""}/{new_dir_name}"))
         else:
-            logging.info("Directory renaming failed")
-            self.page.open(error_alert(f"Directory renaming failed. Please Try Again. (Error Code: {response}"))
+            logging.info("Folder renaming failed")
+            self.page.open(error_alert(f"Folder renaming failed. Please Try Again. (Error Code: {response}"))
 
     def _create_dir_button_on_click(self):
         """
@@ -594,10 +594,10 @@ class HomeController:
         """
         dialog = TextFieldAlertDialog(
             page=self.page,
-            title="Create New Directory:",
+            title="Create New Folder:",
             title_icon=ft.Icons.CREATE_NEW_FOLDER_ROUNDED,
-            subtitle="Enter the name of the new directory:",
-            text_fields=["Directory Name:"]
+            subtitle="Enter the name of the new Folder:",
+            text_fields=["Folder Name:"]
         )
         dialog.set_on_confirm_method(lambda e: self._create_dir_confirm_on_click(dialog))
         self.page.open(dialog.alert)
@@ -619,7 +619,7 @@ class HomeController:
         logging.info(f"Dir name: {dir_name}")
 
         if len(dir_name) == 0:
-            self.page.open(error_alert("Directory Name cannot be empty. Please try again with a different name."))
+            self.page.open(error_alert("Folder Name cannot be empty. Please try again with a different name."))
             return
 
         is_name_invalid = False
@@ -628,20 +628,20 @@ class HomeController:
                 is_name_invalid = True
 
         if is_name_invalid:
-            self.page.open(error_alert("Directory Name cannot contain special characters. Please try again with a different name."))
+            self.page.open(error_alert("Folder Name cannot contain special characters. Please try again with a different name."))
             return
 
 
         data = [self.current_dir, dir_name]
         status, response = self.comms_manager.send_message(verb=Verbs.CREATE_DIR, data=data)
         if status == "SUCCESS":
-            logging.info("Directory created successfully")
+            logging.info("Folder created successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"Directory {self.current_dir if self.current_dir != "/" else ""}/{dir_name} created successfully"))
+            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} created successfully"))
         else:
-            logging.info("Directory creation failed")
+            logging.info("Folder creation failed")
             self._mini_navigator()
-            self.page.open(error_alert(f"Directory name already taken. Please try again with a different name. (Error Code: {response})"))
+            self.page.open(error_alert(f"Folder name already taken. Please try again with a different name. (Error Code: {response})"))
 
     def _delete_file_on_click(self, file_name):
         """
@@ -698,9 +698,9 @@ class HomeController:
         """
         dialog = CancelConfirmAlertDialog(
             page=self.page,
-            title="Confirm Directory Deletion",
+            title="Confirm Folder Deletion",
             title_icon=ft.Icons.DELETE_ROUNDED,
-            subtitle=f"Are you sure you want to delete the directory `{directory.name}`?"
+            subtitle=f"Are you sure you want to delete the folder `{directory.name}`?"
         )
         dialog.set_on_confirm_method(lambda e, dp = directory.path, dn = directory.name: self._delete_dir(dp[:-1] if dp.endswith("/") and dp != "/" else dp, dn, dialog))
         self.page.open(dialog.alert)
@@ -723,15 +723,15 @@ class HomeController:
         :return: None
         """
         self.page.close(dialog.alert)
-        logging.info(f"Deleting directory: [{dir_path}, {dir_name}]")
+        logging.info(f"Deleting folder: [{dir_path}, {dir_name}]")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_DIR, data=[dir_path, dir_name])
         if status == "SUCCESS":
-            logging.info(f"Directory [{dir_path}, {dir_name}] deleted successfully")
+            logging.info(f"Folder [{dir_path}, {dir_name}] deleted successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} deleted successfully"))
+            self.page.open(success_alert(f"Folder {dir_path if dir_path != "/" else ""}/{dir_name} deleted successfully"))
         else:
-            logging.info("Directory deletion failed")
-            self.page.open(error_alert(f"Directory {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
+            logging.info("Folder deletion failed")
+            self.page.open(error_alert(f"Folder {dir_path if dir_path != "/" else ""}/{dir_name} Deletion Failed. Please Try Again"))
 
     def _download_file_on_click(self, file_name):
         """
@@ -1043,7 +1043,7 @@ class HomeController:
         if not self.passwords_service.verify_password(current_password):
             self.page.open("Current Password entered was incorrect. Please try again.")
         elif new_password != confirm_new_password:
-            self.page.open(error_alert("New Password did not match Password Confirmation. Please try again."))
+            self.page.open(error_alert("New Password did not match New Password Confirmation. Please try again."))
         elif len(new_password) < 8 or len(new_password) > 64:
             self.page.open(error_alert("Password must be between 8 and 64 characters long."))
         else:
