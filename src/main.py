@@ -35,9 +35,9 @@ class GUI:
     and controllers in the application.
 
     :ivar top_view: The currently active view in the application.
-    :type top_view: Optional[ft.UserControl]
+    :type top_view: Any
     :ivar controller: The controller associated with the current view.
-    :type controller: Optional[ft.BaseController]
+    :type controller: Any
     :ivar comms_manager: Manages communication with the server.
     :type comms_manager: ClientCommsManager
     :ivar file_encryption_service: Provides encryption and decryption services for files.
@@ -67,7 +67,7 @@ class GUI:
         self.passwords_service = PasswordsService(self.file_encryption_service)
 
         self.page = page
-        self.page.window.icon = "window_icon.ico"
+        self.page.window.icon = "icon.ico"
         self.page.window.width = 1000
         self.page.window.min_width = 900
         self.page.window.height = 600
@@ -120,7 +120,6 @@ class GUI:
                     navigator=self.navigator,
                     comms_manager=self.comms_manager,
                     file_encryption_service=self.file_encryption_service,
-                    passwords_service=self.passwords_service
                 )
 
                 if timed_out: self.page.open(error_alert("Your log in timed out. Please log in again."))
@@ -136,7 +135,6 @@ class GUI:
                     navigator=self.navigator,
                     comms_manager=self.comms_manager,
                     file_encryption_service=self.file_encryption_service,
-                    passwords_service=self.passwords_service
 
                 )
             case ViewsAndRoutesList.HOME:
@@ -163,7 +161,5 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
     ft.app(GUI, assets_dir="../assets")
-
-
 
 

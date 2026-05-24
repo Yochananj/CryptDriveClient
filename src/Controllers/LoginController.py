@@ -17,7 +17,6 @@ import flet as ft
 
 from Dependencies.VerbDictionary import Verbs
 from Services.FileEncryptionService import FileEncryptionService
-from Services.PasswordsService import PasswordsService
 from Views.LoginView import LoginView
 from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
@@ -41,11 +40,8 @@ class LoginController:
     :ivar file_encryption_service: Manages encryption operations, specifically
         deriving, storing, and managing file encryption keys securely.
     :type file_encryption_service: FileEncryptionService
-    :ivar passwords_service: Manages password-related functionalities, such as
-        hashing and validation.
-    :type passwords_service: PasswordsService
     """
-    def __init__(self, page: ft.Page, view: LoginView, navigator, comms_manager, file_encryption_service: FileEncryptionService, passwords_service: PasswordsService):
+    def __init__(self, page: ft.Page, view: LoginView, navigator, comms_manager, file_encryption_service: FileEncryptionService):
         """
         Initializes an instance of the class and sets up necessary dependencies and
         handlers.
@@ -61,15 +57,11 @@ class LoginController:
         :param file_encryption_service: The FileEncryptionService instance that
             handles file encryption operations.
         :type file_encryption_service: FileEncryptionService
-        :param passwords_service: The PasswordsService instance that manages
-            password-related functionalities and operations.
-        :type passwords_service: PasswordsService
         """
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager
         self.file_encryption_service = file_encryption_service
-        self.passwords_service = passwords_service
 
         self._upon_text_field_change(page)
         self._attach_handlers(page)

@@ -229,6 +229,8 @@ class FolderTile:
         """
         if item_count == 1:
             return "1 item"
+        elif item_count == 0:
+            return "No items"
         else:
             return f"{item_count} items"
 
@@ -497,6 +499,7 @@ class CancelConfirmAlertDialog:
         """
         self.confirm.on_click = method
 
+
 class FolderPickerAlertDialog:
     """
     Represents a dialog for selecting a folder from a list of directories.
@@ -636,8 +639,6 @@ class FolderPickerAlertDialog:
         trt = self.selected_dir.path + self.selected_dir.name
         logging.info(f"TO RETURN STRING: {trt}")
         return trt
-
-
 
 
 class AboutLine:

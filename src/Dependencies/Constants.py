@@ -67,12 +67,12 @@ crypt_drive_fonts = {
 separator = "|||"
 byte_data_flag = b"||| BYTE DATA |||"
 string_data_flag = b"||| STRING DATA |||"
-end_flag = b"||| END |||"
 
 # Encryption Flags
 init_flag = b"(&) INIT (&)"
 resume_flag = b"(&) RESUME (&)"
 encryption_separator = b"(&) SEP (&)"
+end_flag = b"(&) END (&)"
 
 # Common Constants
 server_address = "localhost"

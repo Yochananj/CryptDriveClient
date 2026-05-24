@@ -11,7 +11,6 @@ import flet as ft
 from Dependencies.VerbDictionary import Verbs
 from Services.ClientCommsManager import ClientCommsManager
 from Services.FileEncryptionService import FileEncryptionService
-from Services.PasswordsService import PasswordsService
 from Views.UIElements import error_alert
 from Views.ViewsAndRoutesList import ViewsAndRoutesList
 
@@ -34,15 +33,12 @@ class SignUpController:
     :type comms_manager: ClientCommsManager
     :ivar file_encryption_service: Service for managing encryption-related operations.
     :type file_encryption_service: FileEncryptionService
-    :ivar passwords_service: Service for password hashing and verification.
-    :type passwords_service: PasswordsService
     """
     def __init__(self, page: ft.Page,
                  view,
                  navigator,
                  comms_manager: ClientCommsManager,
                  file_encryption_service: FileEncryptionService,
-                 passwords_service: PasswordsService
                  ):
         """
         Initializes the class with required services and configurations.
@@ -57,15 +53,11 @@ class SignUpController:
         :param file_encryption_service: Provides functionality for file encryption and
             related cryptographic operations.
         :type file_encryption_service: FileEncryptionService
-        :param passwords_service: Manages password-related operations, such as storage
-            or validation.
-        :type passwords_service: PasswordsService
         """
         self.view = view
         self.navigator = navigator
         self.comms_manager = comms_manager
         self.file_encryption_service = file_encryption_service
-        self.passwords_service = passwords_service
 
         self._upon_text_field_change(page)
         self._attach_handlers(page)

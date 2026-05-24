@@ -1,3 +1,24 @@
+"""
+Manages secure communication between client and server using X25519 key exchange and AES-GCM encryption.
+
+This module provides the SecureCommunicationManager class, which handles encrypted data transmission
+over TCP/IP sockets. It implements the X25519 elliptic curve Diffie-Hellman key exchange protocol
+to establish a shared encryption key between client and server, then uses AES-GCM (Advanced Encryption
+Standard - Galois/Counter Mode) for authenticated encryption of messages and data.
+
+Key features:
+- X25519 key pair generation and exchange for secure key establishment
+- AES-GCM encryption/decryption with 256-bit keys
+- Automatic connection management and reconnection handling
+- Token-based session management for re-authentication
+- Support for encrypted message and data transmission
+- Graceful handling of connection lifecycle (connect, send, receive, close)
+
+The module integrates with the application's constants and communication protocols defined in
+Dependencies.Constants to ensure consistent communication patterns across the system.
+"""
+
+
 import logging
 import socket
 from os import urandom

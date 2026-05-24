@@ -5,7 +5,6 @@ transitions based on the selected container and any control events.
 Incorporates animation effects for a smooth user experience during transitions.
 """
 
-
 import json
 import logging
 import os.path
@@ -1011,35 +1010,27 @@ class HomeController:
         dialog.set_on_confirm_method(
             lambda e, d=dialog:
              self._change_password(
-                get_current_password_method=lambda: d.get_text_field_values()[0],
-                get_new_password_method=lambda: d.get_text_field_values()[1],
-                get_confirm_new_password_method=lambda: d.get_text_field_values()[2],
+                get_values_method=lambda: d.get_text_field_values(),
                 dialog=d
             )
         )
         self.page.open(dialog.alert)
 
-    def _change_password(self, get_current_password_method, get_new_password_method, get_confirm_new_password_method, dialog):
+    def _change_password(self, get_values_method, dialog):
         """
         Handles the process of changing the user's password, including validation of the current
         password, confirmation of the new password, ensuring the password meets length
         requirements, and updating the backend system with the new password.
 
-        :param get_current_password_method: A callable that returns the current password entered
-                                             by the user.
-        :type get_current_password_method: Callable[[], str]
-        :param get_new_password_method: A callable that returns the new password entered by
-                                         the user.
-        :type get_new_password_method: Callable[[], str]
-        :param get_confirm_new_password_method: A callable that returns the password confirmation
-                                                 entered by the user.
-        :type get_confirm_new_password_method: Callable[[], str]
+        :param get_values_method: A callable that returns a list of the values
+                          entered by the user in the text fields in the dialog.
+        :type get_values_method: Callable[[], str]
         :param dialog: The dialog instance that contains the alert to close.
         :type dialog: Dialog
         :return: None
         """
         self.page.close(dialog.alert)
-        current_password, new_password, confirm_new_password = get_current_password_method(), get_new_password_method(), get_confirm_new_password_method()
+        current_password, new_password, confirm_new_password = get_values_method()
         if not self.passwords_service.verify_password(current_password):
             self.page.open("Current Password entered was incorrect. Please try again.")
         elif new_password != confirm_new_password:
