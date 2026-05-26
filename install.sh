@@ -23,15 +23,18 @@ for cmd in git python3; do
 done
 
 # ── Pick the right Python on Apple Silicon ────────────────────────────────────
-# If running on arm64, prefer /opt/homebrew/bin/python3 (native) over a
-# Rosetta x86_64 python3 to avoid architecture mismatches in compiled packages.
+# Check the Python binary's actual architecture, not the shell's — the shell
+# may be running under Rosetta even on Apple Silicon hardware.
 PYTHON3="$(command -v python3)"
-if [[ "$(uname -m)" == "arm64" ]]; then
+PYTHON3_ARCH="$(file "$PYTHON3" 2>/dev/null || true)"
+
+if [[ "$(sysctl -n hw.optional.arm64 2>/dev/null)" == "1" ]]; then
+    # This Mac has Apple Silicon hardware
     if [[ -x "/opt/homebrew/bin/python3" ]]; then
         PYTHON3="/opt/homebrew/bin/python3"
-        echo -e "${CYAN}Apple Silicon detected — using native arm64 Python.${NC}"
+        echo -e "${CYAN}Apple Silicon detected — using native arm64 Python at /opt/homebrew/bin/python3.${NC}"
     else
-        echo -e "${RED}Warning: native arm64 Python not found at /opt/homebrew/bin/python3.${NC}"
+        echo -e "${RED}Error: Apple Silicon detected but native Homebrew Python not found.${NC}"
         echo -e "${RED}Install it with: brew install python3${NC}"
         exit 1
     fi
@@ -92,22 +95,28 @@ if [[ "$(uname)" == "Darwin" ]]; then
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-    <key>CFBundleExecutable</key>  <string>CryptDrive</string>
-    <key>CFBundleIdentifier</key> <string>com.cryptdrive.app</string>
-    <key>CFBundleName</key>       <string>CryptDrive</string>
-    <key>CFBundleVersion</key>    <string>1.0.0</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>LSUIElement</key>        <false/>
+    <key>CFBundleExecutable</key>        <string>CryptDrive</string>
+    <key>CFBundleIdentifier</key>        <string>com.cryptdrive.app</string>
+    <key>CFBundleName</key>              <string>CryptDrive</string>
+    <key>CFBundleVersion</key>           <string>1.0.0</string>
+    <key>CFBundlePackageType</key>       <string>APPL</string>
+    <key>LSUIElement</key>               <false/>
+    <key>LSRequiresNativeExecution</key> <true/>
 </dict></plist>
 EOF
 
     cat > "$APP_BUNDLE/Contents/MacOS/CryptDrive" << EOF
 #!/usr/bin/env bash
 
-# Set working directory to the install folder so relative paths work
+# Force native arm64 — prevents Rosetta from launching this as x86_64
+if [[ "\$(uname -m)" != "arm64" ]]; then
+    exec arch -arm64 /bin/bash "\$0" "\$@"
+fi
+
+# Set working directory so relative imports work
 cd "$INSTALL_DIR" || exit 1
 
-# Log stdout and stderr in case of crashes — check ~/Library/Logs/CryptDrive.log
+# Log crashes to ~/Library/Logs/CryptDrive.log
 mkdir -p "\$HOME/Library/Logs"
 exec "$VENV_PYTHON" "$INSTALL_DIR/src/main.py" "\$@" \
     >> "\$HOME/Library/Logs/CryptDrive.log" 2>&1
