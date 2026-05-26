@@ -82,10 +82,5 @@ $sc.TargetPath  = $vbsPath
 $sc.Description = "CryptDrive - Zero-knowledge encrypted storage"
 $sc.Save()
 
-$dc = $shell.CreateShortcut("$env:USERPROFILE\Desktop\CryptDrive.lnk")
-$dc.TargetPath  = $vbsPath
-$dc.Description = "CryptDrive - Zero-knowledge encrypted storage"
-$dc.Save()
-
 Write-Host "`n✓ CryptDrive installed successfully!" -ForegroundColor Green
 Write-Host "  Launch it from your Start Menu or Desktop shortcut." -ForegroundColor Green
