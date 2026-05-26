@@ -33,9 +33,19 @@ if ($result -ne 0) {
 
 Write-Host "Removing files..." -ForegroundColor Cyan
 
-if (Test-Path $INSTALL_DIR)  { Remove-Item -Recurse -Force $INSTALL_DIR }
-if (Test-Path $LAUNCHER_DIR) { Remove-Item -Recurse -Force $LAUNCHER_DIR }
-if (Test-Path $START_MENU)   { Remove-Item -Force $START_MENU }
+# Remove Desktop shortcut
 if (Test-Path $DESKTOP_LNK)  { Remove-Item -Force $DESKTOP_LNK }
+
+# Remove Start Menu shortcut
+if (Test-Path $START_MENU)   { Remove-Item -Force $START_MENU }
+
+# Remove App Launcher and VBS script
+if (Test-Path $LAUNCHER_DIR) {
+    Remove-Item -Path "$LAUNCHER_DIR\launch.vbs" -Force -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force $LAUNCHER_DIR
+}
+
+# Remove Core Installation
+if (Test-Path $INSTALL_DIR)  { Remove-Item -Recurse -Force $INSTALL_DIR }
 
 Write-Host "`n✓ CryptDrive has been successfully uninstalled." -ForegroundColor Green
