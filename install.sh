@@ -111,33 +111,33 @@ if [[ "$(uname)" == "Darwin" ]]; then
         done
 
         iconutil -c icns "$ICONSET_DIR" -o "$ICNS_PATH"
-        rm -rf "$ICONSET_DIR"
-        echo -e "${GREEN}  Icon converted successfully.${NC}"
-    else
-        echo -e "${RED}Warning: icon not found at $ICON_SRC — skipping icon.${NC}"
-    fi
+                rm -rf "$ICONSET_DIR"
+                echo -e "${GREEN}  Icon converted successfully.${NC}"
+            else
+                echo -e "${RED}Warning: icon not found at $ICON_SRC — skipping icon.${NC}"
+            fi
 
-    cat > "$APP_BUNDLE/Contents/Info.plist" << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-    <key>CFBundleExecutable</key>           <string>CryptDrive</string>
-    <key>CFBundleIdentifier</key>           <string>com.cryptdrive.app</string>
-    <key>CFBundleName</key>                 <string>CryptDrive</string>
-    <key>CFBundleVersion</key>              <string>1.0.0</string>
-    <key>CFBundlePackageType</key>          <string>APPL</string>
-    <key>CFBundleIconFile</key>             <string>CryptDrive</string>
-    <key>CFBundleShortVersionString</key>   <string>1.0.0</string>
-    <key>NSHighResolutionCapable</key>      <true/>
-    <key>NSRequiresAquaSystemAppearance</key><false/>
-    <key>LSUIElement</key>                  <false/>
-    <key>LSRequiresNativeExecution</key>    <true/>
-    <key>LSMinimumSystemVersion</key>       <string>12.0</string>
-</dict></plist>
+            cat > "$APP_BUNDLE/Contents/Info.plist" << EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0"><dict>
+            <key>CFBundleExecutable</key>           <string>CryptDrive</string>
+            <key>CFBundleIdentifier</key>           <string>com.cryptdrive.app</string>
+            <key>CFBundleName</key>                 <string>CryptDrive</string>
+            <key>CFBundleVersion</key>              <string>1.0.0</string>
+            <key>CFBundlePackageType</key>          <string>APPL</string>
+            <key>CFBundleIconFile</key>             <string>CryptDrive</string>
+            <key>CFBundleShortVersionString</key>   <string>1.0.0</string>
+            <key>NSHighResolutionCapable</key>      <true/>
+            <key>NSRequiresAquaSystemAppearance</key><false/>
+            <key>LSUIElement</key>                  <true/>
+            <key>LSRequiresNativeExecution</key>    <true/>
+            <key>LSMinimumSystemVersion</key>       <string>12.0</string>
+        </dict></plist>
 EOF
 
-    cat > "$APP_BUNDLE/Contents/MacOS/CryptDrive" << EOF
+            cat > "$APP_BUNDLE/Contents/MacOS/CryptDrive" << EOF
 #!/usr/bin/env bash
 
 # Force native arm64 — prevents Rosetta from launching this as x86_64
