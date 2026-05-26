@@ -22,6 +22,21 @@ for cmd in git python3; do
     fi
 done
 
+# ── Pick the right Python on Apple Silicon ────────────────────────────────────
+# If running on arm64, prefer /opt/homebrew/bin/python3 (native) over a
+# Rosetta x86_64 python3 to avoid architecture mismatches in compiled packages.
+PYTHON3="$(command -v python3)"
+if [[ "$(uname -m)" == "arm64" ]]; then
+    if [[ -x "/opt/homebrew/bin/python3" ]]; then
+        PYTHON3="/opt/homebrew/bin/python3"
+        echo -e "${CYAN}Apple Silicon detected — using native arm64 Python.${NC}"
+    else
+        echo -e "${RED}Warning: native arm64 Python not found at /opt/homebrew/bin/python3.${NC}"
+        echo -e "${RED}Install it with: brew install python3${NC}"
+        exit 1
+    fi
+fi
+
 # ── Clone / update repo ──────────────────────────────────────────────────────
 echo -e "${CYAN}Fetching CryptDrive client...${NC}"
 if [ -d "$INSTALL_DIR/.git" ]; then
@@ -58,9 +73,9 @@ echo -e "${GREEN}  Server address set to: $SERVER_IP${NC}"
 
 # ── Create virtual environment ───────────────────────────────────────────────
 echo -e "${CYAN}Setting up Python environment...${NC}"
-if [ ! -d "$INSTALL_DIR/.venv" ]; then
-    python3 -m venv "$INSTALL_DIR/.venv"
-fi
+# Always recreate the venv to ensure it matches the correct architecture
+rm -rf "$INSTALL_DIR/.venv"
+"$PYTHON3" -m venv "$INSTALL_DIR/.venv"
 
 # ── Install dependencies ─────────────────────────────────────────────────────
 echo -e "${CYAN}Installing dependencies...${NC}"
