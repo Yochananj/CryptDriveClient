@@ -89,19 +89,51 @@ echo -e "${CYAN}Installing dependencies...${NC}"
 if [[ "$(uname)" == "Darwin" ]]; then
     APP_BUNDLE="/Applications/CryptDrive.app"
     mkdir -p "$APP_BUNDLE/Contents/MacOS"
+    mkdir -p "$APP_BUNDLE/Contents/Resources"
+
+    # ── Convert PNG icon → .icns ─────────────────────────────────────────────
+    ICON_SRC="$INSTALL_DIR/assets/icon.png"
+    ICONSET_DIR="$INSTALL_DIR/assets/CryptDrive.iconset"
+    ICNS_PATH="$APP_BUNDLE/Contents/Resources/CryptDrive.icns"
+
+    if [ -f "$ICON_SRC" ]; then
+        echo -e "${CYAN}Converting icon...${NC}"
+        rm -rf "$ICONSET_DIR"
+        mkdir -p "$ICONSET_DIR"
+
+        # Generate all required icon sizes from the source PNG
+        for size in 16 32 64 128 256 512; do
+            sips -z $size $size "$ICON_SRC" \
+                --out "$ICONSET_DIR/icon_${size}x${size}.png" &>/dev/null
+            double=$((size * 2))
+            sips -z $double $double "$ICON_SRC" \
+                --out "$ICONSET_DIR/icon_${size}x${size}@2x.png" &>/dev/null
+        done
+
+        iconutil -c icns "$ICONSET_DIR" -o "$ICNS_PATH"
+        rm -rf "$ICONSET_DIR"
+        echo -e "${GREEN}  Icon converted successfully.${NC}"
+    else
+        echo -e "${RED}Warning: icon not found at $ICON_SRC — skipping icon.${NC}"
+    fi
 
     cat > "$APP_BUNDLE/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-    <key>CFBundleExecutable</key>        <string>CryptDrive</string>
-    <key>CFBundleIdentifier</key>        <string>com.cryptdrive.app</string>
-    <key>CFBundleName</key>              <string>CryptDrive</string>
-    <key>CFBundleVersion</key>           <string>1.0.0</string>
-    <key>CFBundlePackageType</key>       <string>APPL</string>
-    <key>LSUIElement</key>               <false/>
-    <key>LSRequiresNativeExecution</key> <true/>
+    <key>CFBundleExecutable</key>           <string>CryptDrive</string>
+    <key>CFBundleIdentifier</key>           <string>com.cryptdrive.app</string>
+    <key>CFBundleName</key>                 <string>CryptDrive</string>
+    <key>CFBundleVersion</key>              <string>1.0.0</string>
+    <key>CFBundlePackageType</key>          <string>APPL</string>
+    <key>CFBundleIconFile</key>             <string>CryptDrive</string>
+    <key>CFBundleShortVersionString</key>   <string>1.0.0</string>
+    <key>NSHighResolutionCapable</key>      <true/>
+    <key>NSRequiresAquaSystemAppearance</key><false/>
+    <key>LSUIElement</key>                  <false/>
+    <key>LSRequiresNativeExecution</key>    <true/>
+    <key>LSMinimumSystemVersion</key>       <string>12.0</string>
 </dict></plist>
 EOF
 
