@@ -83,4 +83,4 @@ $sc.Description = "CryptDrive - Zero-knowledge encrypted storage"
 $sc.Save()
 
 Write-Host "`n✓ CryptDrive installed successfully!" -ForegroundColor Green
-Write-Host "  Launch it from your Start Menu or Desktop shortcut." -ForegroundColor Green
+Write-Host "  Launch it from your Start Menu." -ForegroundColor Green
