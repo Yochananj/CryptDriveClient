@@ -61,7 +61,7 @@ if (-not (Test-Path "$INSTALL_DIR\.venv")) {
 
 # ── Install dependencies ──────────────────────────────────────────────────────
 Write-Host "Installing dependencies..." -ForegroundColor Cyan
-& "$INSTALL_DIR\.venv\Scripts\pip.exe" install --quiet --upgrade pip
+& "$INSTALL_DIR\.venv\Scripts\python.exe" -m pip install --quiet --upgrade pip
 & "$INSTALL_DIR\.venv\Scripts\pip.exe" install --quiet -e $INSTALL_DIR
 
 # ── Create native launcher ────────────────────────────────────────────────────
