@@ -89,7 +89,8 @@ class ClientFileService:
             script = 'POSIX path of (choose file with prompt "Select a file")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
             logging.info(f"File path picked: {path}")
-            logging.info(f"Is path Empty? {path == ""}")
+            is_path_empty = path == ""
+            logging.info(f"Is path Empty? {is_path_empty}")
             return path
         elif osv == "Windows":
             ps_command = f"""
@@ -104,8 +105,8 @@ class ClientFileService:
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-
-            logging.info(f"File path picked: {path if not path == "" else "Empty"}")
+            path_str = path if not path == "" else "Empty"
+            logging.info(f"File path picked: {path_str}")
             return path
         else:
             raise Exception("Unsupported OS")
@@ -136,7 +137,8 @@ class ClientFileService:
         if osv == "Darwin":
             script = f'POSIX path of (choose file name with prompt "Choose where to save `{file_name}` to:" default name "{file_name}")'
             path = subprocess.run(["osascript", "-e", script], capture_output=True, text=True).stdout.strip()
-            logging.info(f"File path picked: {path if path != "" else 'Empty'}")
+            path_str = path if path != "" else 'Empty'
+            logging.info(f"File path picked: {path_str}")
             return path
         elif osv == "Windows":
             ps_command = f"""
@@ -153,8 +155,8 @@ class ClientFileService:
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-
-            logging.info(f"File path picked: {path if not path == "" else 'Empty'}")
+            path_str = path if not path == "" else 'Empty'
+            logging.info(f"File path picked: {path_str}")
             return path
         else:
             raise Exception("Unsupported OS")
