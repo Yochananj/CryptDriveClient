@@ -757,7 +757,8 @@ class HomeController:
 
             self.page.window.to_front()
             path_to_save_to = ClientFileService.save_file_dialog(file_name)
-            logging.info(f"Path to save to: {path_to_save_to if path_to_save_to is not None or "" else 'Empty'}")
+            temp_path = path_to_save_to if path_to_save_to is not None or "" else 'Empty'
+            logging.info(f"Path to save to: {temp_path}")
             if (path_to_save_to is None) or path_to_save_to == "":
                 return
 
