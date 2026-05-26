@@ -88,9 +88,20 @@ EOF
 
     cat > "$APP_BUNDLE/Contents/MacOS/CryptDrive" << EOF
 #!/usr/bin/env bash
-exec "$VENV_PYTHON" "$INSTALL_DIR/src/main.py" "\$@"
+
+# Set working directory to the install folder so relative paths work
+cd "$INSTALL_DIR" || exit 1
+
+# Log stdout and stderr in case of crashes — check ~/Library/Logs/CryptDrive.log
+mkdir -p "\$HOME/Library/Logs"
+exec "$VENV_PYTHON" "$INSTALL_DIR/src/main.py" "\$@" \
+    >> "\$HOME/Library/Logs/CryptDrive.log" 2>&1
 EOF
     chmod +x "$APP_BUNDLE/Contents/MacOS/CryptDrive"
+
+    # Clear Gatekeeper quarantine so macOS doesn't block the unsigned app
+    xattr -cr "$APP_BUNDLE" 2>/dev/null || true
+
     echo -e "\n${GREEN}✓ Installed to /Applications/CryptDrive.app${NC}"
 
 else
