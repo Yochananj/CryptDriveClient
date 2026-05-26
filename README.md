@@ -4,42 +4,45 @@
 
 A secure, end-to-end encrypted cloud storage desktop application built with Python and Flet. CryptDrive enables users to store, manage, and access their files with client-side encryption, ensuring that only the user can decrypt and access their data.
 
+## 🖥️ Supported Platforms
+
+- **macOS**: Full support with native file dialogs (using AppleScript)
+- **Windows**: Full support with native file dialogs (using PowerShell)
+
 ## 🚀 Getting Started
 
 **Note**: This is a client application that requires a compatible CryptDrive server to function. The server implementation is not included in this repository (See [Yochananj/CryptDriveServer](https://github.com/Yochananj/CryptDriveServer))
 
 ### Installation
 
-1. Clone the repository:
+#### Prerequisites
+- **Python 3.10+** - For running the application
+- **Git** - For cloning the repository
+
+#### MacOS Installation
+Run the following command in the terminal and input your CryptDrive Server's IP address when prompted:
 ```shell
-git clone https://github.com/Yochananj/CryptDriveClient
-cd CryptDriveClient
+curl -sSL https://raw.githubusercontent.com/Yochananj/CryptDriveClient/main/install.sh | bash
+```
+The script will automatically download and install the required dependencies, and will create a shortcut in your applications folder for easy access.
+
+
+To uninstall, run the following command and confirm when prompted:
+```shell
+curl -sSL https://raw.githubusercontent.com/Yochananj/CryptDriveClient/main/uninstall.sh | bash
 ```
 
-
-2. Run the installation script:
-
-For MacOS:
-```shell
-chmod +x install.sh
-./install.sh
-```
-For Windows:
+#### Windows Installation
+Run the following command in PowerShell and input your CryptDrive Server's IP address when prompted:
 ```powershell
-.\ install.ps1
+irm https://raw.githubusercontent.com/Yochananj/CryptDriveClient/main/install.ps1 | iex
 ```
+The script will automatically download and install the required dependencies, and will create a shortcut in your start menu for easy access.
 
-3. Enter your server's address when prompted
-
-```shell
-"Enter server IP address (default == localhost): "
-1.2.3.4
+To uninstall, run the following command and confirm when prompted:
+```powershell
+irm https://raw.githubusercontent.com/Yochananj/CryptDriveClient/main/uninstall.ps1 | iex
 ```
-
-## 🖥️ Supported Platforms
-
-- **macOS**: Full support with native file dialogs (using AppleScript)
-- **Windows**: Full support with native file dialogs (using PowerShell)
 
 
 ## 🔐 Security Features
