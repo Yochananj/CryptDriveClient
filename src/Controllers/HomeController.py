@@ -430,8 +430,8 @@ class HomeController:
         if status == "SUCCESS":
             logging.info("File uploaded successfully")
             self._mini_navigator()
-            dir = self.current_dir if self.current_dir != "/" else ""
-            self.page.open(success_alert(f"File {dir}/{file_name} uploaded successfully"))
+            display_dir = self.current_dir if self.current_dir != "/" else ""
+            self.page.open(success_alert(f"File {display_dir}/{file_name} uploaded successfully"))
         else:
             logging.info("File upload failed")
             self.page.open(error_alert(f"File Upload Failed. Please Try Again. (Error Code: {response})"))
@@ -579,7 +579,8 @@ class HomeController:
         if status == "SUCCESS":
             logging.info("Folder renamed successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{old_dir_name} renamed successfully to {self.current_dir if self.current_dir != "/" else ""}/{new_dir_name}"))
+            display_dir = self.current_dir if self.current_dir != "/" else ""
+            self.page.open(success_alert(f"Folder {display_dir}/{old_dir_name} renamed successfully to {display_dir}/{new_dir_name}"))
         else:
             logging.info("Folder renaming failed")
             self.page.open(error_alert(f"Folder renaming failed. Please Try Again. (Error Code: {response}"))
@@ -637,7 +638,8 @@ class HomeController:
         if status == "SUCCESS":
             logging.info("Folder created successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} created successfully"))
+            display_dir = self.current_dir if self.current_dir != "/" else ""
+            self.page.open(success_alert(f"Folder {display_dir}/{dir_name} created successfully"))
         else:
             logging.info("Folder creation failed")
             self._mini_navigator()
@@ -675,15 +677,16 @@ class HomeController:
         :return: None
         """
         self.page.close(dialog.alert)
-        logging.info(f"Deleting file: {self.current_dir if self.current_dir != "/" else ""}/{file_name}")
+        display_dir = self.current_dir if self.current_dir != "/" else ""
+        logging.info(f"Deleting file: {display_dir}/{file_name}")
         status, response = self.comms_manager.send_message(verb=Verbs.DELETE_FILE, data=[self.current_dir, file_name])
         if status == "SUCCESS":
             logging.info(f"File [{self.current_dir}, {file_name}] deleted successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} deleted successfully"))
+            self.page.open(success_alert(f"File {display_dir}/{file_name} deleted successfully"))
         else:
             logging.info("File deletion failed")
-            self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} Deletion Failed. Please Try Again"))
+            self.page.open(error_alert(f"File {display_dir}/{file_name} Deletion Failed. Please Try Again"))
 
     def _delete_dir_on_click(self, directory: FolderTile):
         """
@@ -826,15 +829,16 @@ class HomeController:
         new_file_path = new_file_path_method()
         self.page.close(dialog.alert)
         data = [self.current_dir, new_file_path, file_name]
+        display_dir = self.current_dir if self.current_dir != "/" else ""
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_FILE, data=data)
         if status == "SUCCESS":
             logging.info(f"File [{file_name}] moved successfully to [{new_file_path}]")
             self._mini_navigator()
-            self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} moved successfully to {new_file_path}"))
+            self.page.open(success_alert(f"File {display_dir}/{file_name} moved successfully to {new_file_path}"))
             self._change_dir(new_file_path)
         else:
             logging.info("File move failed")
-            self.page.open(error_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
+            self.page.open(error_alert(f"File {display_dir}/{file_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _move_dir_on_click(self, dir_name, current_dialog_path_method=None, previous_dialog: FolderPickerAlertDialog=None):
         """
@@ -867,7 +871,8 @@ class HomeController:
         subdirs = []
         for directory in dirs:
             sub_dir_path = directory["path"]
-            if sub_dir_path != f"{self.current_dir if self.current_dir != "/" else ""}/{dir_name}":
+            display_dir = self.current_dir if self.current_dir != "/" else ""
+            if sub_dir_path != f"{display_dir}/{dir_name}":
                 subdirs.append(sub_dir_path)
 
         logging.info(f"Subdirs: {subdirs}")
@@ -903,15 +908,16 @@ class HomeController:
         new_dir_path = new_dir_path_method()
         self.page.close(dialog.alert)
         data = [self.current_dir, new_dir_path, dir_name]
+        display_dir = self.current_dir if self.current_dir != "/" else ""
         status, response = self.comms_manager.send_message(verb=Verbs.MOVE_DIR, data=data)
         if status == "SUCCESS":
             logging.info(f"File [{self.current_dir}, {dir_name}] moved successfully to [{new_dir_path}]")
             self._mini_navigator()
-            self.page.open(success_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} and it's contents moved successfully to {new_dir_path}"))
+            self.page.open(success_alert(f"Folder {display_dir}/{dir_name} and it's contents moved successfully to {new_dir_path}"))
             self._change_dir(new_dir_path)
         else:
             logging.info("Folder move failed")
-            self.page.open(error_alert(f"Folder {self.current_dir if self.current_dir != "/" else ""}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
+            self.page.open(error_alert(f"Folder {display_dir}/{dir_name} move failed. Please Try Again. (Error Code: {response})"))
 
     def _get_file_list(self, path):
         """
