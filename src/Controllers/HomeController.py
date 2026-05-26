@@ -430,7 +430,8 @@ class HomeController:
         if status == "SUCCESS":
             logging.info("File uploaded successfully")
             self._mini_navigator()
-            self.page.open(success_alert(f"File {self.current_dir if self.current_dir != "/" else ""}/{file_name} uploaded successfully"))
+            dir = self.current_dir if self.current_dir != "/" else ""
+            self.page.open(success_alert(f"File {dir}/{file_name} uploaded successfully"))
         else:
             logging.info("File upload failed")
             self.page.open(error_alert(f"File Upload Failed. Please Try Again. (Error Code: {response})"))
