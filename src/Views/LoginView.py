@@ -54,8 +54,8 @@ class LoginView:
         )
         self.username = ft.TextField(value=username_start_value, label="Username", width=300, autofocus=True, prefix_icon=ft.Icon(ft.Icons.PERSON_ROUNDED, color=crypt_drive_purple), max_lines=1)
         self.password = ft.TextField(value=password_start_value, label="Password", width=300, text_vertical_align=ft.VerticalAlignment.START, password=True, prefix_icon=ft.Icon(ft.Icons.KEY_ROUNDED, color=crypt_drive_purple), can_reveal_password=True)
-        self.log_in_button = ft.ElevatedButton(text="Log In", width=300, disabled=True)
-        self.switch_to_sign_up_button = ft.ElevatedButton(text="Sign Up Instead", width=300, disabled=False)
+        self.log_in_button = ft.ElevatedButton(text="Log In", width=300, disabled=True, icon=ft.Icons.PERSON_SEARCH_ROUNDED)
+        self.switch_to_sign_up_button = ft.ElevatedButton(text="Sign Up Instead", width=300, disabled=False, icon=ft.Icons.PERSON_ADD_ALT_1_ROUNDED)
 
     def build(self):
         """

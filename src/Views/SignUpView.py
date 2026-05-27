@@ -59,10 +59,9 @@ class SignUpView:
 
         self.password_confirmation = ft.TextField(label="Confirm Password", text_vertical_align=ft.VerticalAlignment.START, width=300, password=True, prefix_icon=ft.Icon(ft.Icons.KEY_ROUNDED, color=crypt_drive_purple), can_reveal_password=True)
 
-        self.sign_up_button = ft.ElevatedButton(text="Sign Up", width=300, disabled=True)
+        self.sign_up_button = ft.ElevatedButton(text="Sign Up", width=300, disabled=True, icon=ft.Icons.PERSON_ADD_ALT_1_ROUNDED)
 
-        self.switch_to_log_in_button = ft.ElevatedButton(text="Log In Instead", width=300, disabled=False)
-
+        self.switch_to_log_in_button = ft.ElevatedButton(text="Log In Instead", width=300, disabled=False, icon=ft.Icons.PERSON_SEARCH_ROUNDED)
 
     def build(self):
         """
